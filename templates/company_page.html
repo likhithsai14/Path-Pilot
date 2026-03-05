@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>{{ company }} Experiences</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body{
+background:#f3f6fb;
+font-family:Segoe UI;
+}
+
+.exp-card{
+background:white;
+padding:25px;
+border-radius:15px;
+margin-bottom:20px;
+box-shadow:0 4px 12px rgba(0,0,0,0.05);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container mt-5">
+
+<h2>{{ company }} Interview Experiences</h2>
+
+<hr>
+
+{% if experiences %}
+
+{% for exp in experiences %}
+
+<div class="exp-card">
+
+<h5>{{ exp[2] }}</h5>
+
+<p><b>Year:</b> {{ exp[3] }}</p>
+
+<p>{{ exp[4] }}</p>
+
+</div>
+
+{% endfor %}
+
+{% else %}
+
+<p>No experiences available for this company.</p>
+
+{% endif %}
+
+<br>
+
+<a href="/companies" class="btn btn-secondary">Back</a>
+
+</div>
+
+</body>
+</html>

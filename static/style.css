@@ -1,0 +1,105 @@
+/* ===== ANIMATED BLACK + DARK PINK BACKGROUND ===== */
+
+.home-body {
+    margin: 0;
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(-45deg, #000000, #1a001a, #330033, #000000);
+    background-size: 400% 400%;
+    animation: gradientMove 12s ease infinite;
+}
+
+/* Smooth moving gradient */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ===== MAIN CONTENT ===== */
+
+.main-content {
+    color: #f5f5f5;
+}
+
+/* Only title bold */
+.logo {
+    font-size: 50px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+/* Everything else normal weight */
+.tagline {
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.8;
+    margin-bottom: 25px;
+}
+
+h2 {
+    font-weight: 400;
+    margin-top: 10px;
+}
+
+/* ===== BUTTONS HORIZONTAL ===== */
+
+.role-buttons {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.role-btn {
+    padding: 15px 45px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 400;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+/* Buttons related to pink/black theme */
+
+/* Student - Soft Neon Pink */
+.student {
+    background: linear-gradient(45deg, #ff1493, #c71585);
+}
+
+/* Contributor - Deep Purple Pink */
+.contributor {
+    background: linear-gradient(45deg, #8b008b, #ff00ff);
+}
+
+/* Admin - Dark Rose */
+.admin {
+    background: linear-gradient(45deg, #b03060, #ff1493);
+}
+
+/* Hover Effect */
+.role-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(255, 20, 147, 0.4);
+}
+
+/* Click Effect */
+.role-btn:active {
+    transform: scale(0.95);
+}
+
+/* ===== ROCKET ANIMATION ===== */
+
+#rocket {
+    display: inline-block;
+    transition: transform 0.8s ease;
+}
+
+.fly {
+    transform: translate(80px, -80px) rotate(-25deg);
+}

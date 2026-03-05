@@ -1,0 +1,15 @@
+<h2>Manage Experiences</h2>
+
+{% for exp in experiences %}
+    <div>
+        <strong>{{ exp[1] }} - {{ exp[2] }}</strong>
+        <p>{{ exp[4] }}</p>
+
+        <a href="/admin/delete_experience/{{ exp[0] }}">
+            Delete
+        </a>
+        <hr>
+    </div>
+{% endfor %}
+
+<a href="/dashboard">Back</a>

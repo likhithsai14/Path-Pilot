@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PathPilot Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    .profile{
+position:relative;
+cursor:pointer;
+}
+
+.profile-menu{
+display:none;
+position:absolute;
+right:0;
+top:35px;
+background:white;
+border-radius:10px;
+box-shadow:0 8px 20px rgba(0,0,0,0.15);
+padding:10px;
+width:120px;
+}
+
+.profile-menu a{
+display:block;
+text-decoration:none;
+color:black;
+padding:6px 10px;
+border-radius:6px;
+}
+
+.profile-menu a:hover{
+background:#f3f4f6;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+body{
+background:#f9fafb;
+display:flex;
+}
+
+/* Sidebar */
+
+.sidebar{
+width:230px;
+height:100vh;
+background:white;
+padding:25px;
+border-right:1px solid #e5e7eb;
+}
+
+.logo{
+font-size:20px;
+font-weight:700;
+margin-bottom:30px;
+}
+
+.sidebar a{
+display:flex;
+align-items:center;
+padding:12px 15px;
+margin-bottom:10px;
+text-decoration:none;
+color:#374151;
+border-radius:10px;
+transition:0.2s;
+}
+
+.sidebar a:hover{
+background:#eef2ff;
+}
+
+.sidebar .active{
+background:#e0e7ff;
+color:#4f46e5;
+font-weight:600;
+}
+
+/* Main Area */
+
+.main{
+flex:1;
+}
+
+/* Header */
+
+.header{
+height:70px;
+background:white;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 30px;
+border-bottom:1px solid #e5e7eb;
+}
+
+.header-right{
+display:flex;
+align-items:center;
+gap:20px;
+}
+
+.icon{
+font-size:18px;
+cursor:pointer;
+}
+
+/* Notification */
+
+.notification{
+position:relative;
+}
+
+.dropdown{
+display:none;
+position:absolute;
+right:0;
+top:35px;
+background:white;
+width:260px;
+border-radius:10px;
+box-shadow:0 8px 20px rgba(0,0,0,0.15);
+padding:10px;
+z-index:100;
+}
+
+.notif-item{
+border-bottom:1px solid #eee;
+padding:10px;
+}
+
+.notif-item:last-child{
+border-bottom:none;
+}
+
+/* Content */
+
+.content{
+padding:35px;
+}
+
+.welcome h1{
+font-size:30px;
+margin-bottom:5px;
+}
+
+.welcome p{
+color:#6b7280;
+}
+
+/* Cards */
+
+.stats{
+display:flex;
+gap:20px;
+margin-top:30px;
+}
+
+.card{
+flex:1;
+background:white;
+padding:25px;
+border-radius:16px;
+box-shadow:0 6px 20px rgba(0,0,0,0.05);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+}
+
+.card h3{
+color:#6b7280;
+font-size:15px;
+}
+
+.card h1{
+margin:10px 0;
+font-size:32px;
+}
+
+/* Experiences */
+
+.section{
+margin-top:40px;
+}
+
+.experience{
+background:white;
+padding:20px;
+border-radius:14px;
+box-shadow:0 5px 15px rgba(0,0,0,0.05);
+margin-top:15px;
+}
+
+.experience h4{
+margin-bottom:6px;
+}
+
+.experience p{
+color:#6b7280;
+font-size:14px;
+}
+
+/* Floating Button */
+
+.share-btn{
+position:fixed;
+right:30px;
+bottom:30px;
+background:#4f46e5;
+color:white;
+padding:15px 22px;
+border-radius:14px;
+font-weight:600;
+box-shadow:0 10px 25px rgba(79,70,229,0.3);
+cursor:pointer;
+transition:0.2s;
+text-decoration:none;
+}
+
+.share-btn:hover{
+background:#4338ca;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="logo">🚀 PathPilot</div>
+
+<a class="active" href="/dashboard">🏠 Home</a>
+<a href="/search">🔍 Search</a>
+<a href="/companies">🏢 Companies</a>
+<a href="/dashboard">📊 Dashboard</a>
+
+</div>
+
+<div class="main">
+
+<div class="header">
+
+<div>
+<strong>Centralized Interview Repository</strong>
+</div>
+
+<div class="header-right">
+
+{% if role == "admin" %}
+<div class="notification">
+
+<span class="icon" onclick="toggleNotif()">🔔 ({{ pending_users|length }})</span>
+
+<div class="dropdown" id="notifDropdown">
+
+{% if pending_users %}
+
+{% for user in pending_users %}
+
+<div class="notif-item">
+
+<strong>{{ user[1] }}</strong><br>
+<small>{{ user[2] }}</small><br><br>
+
+<a href="/approve/{{ user[0] }}" class="btn btn-success btn-sm">Approve</a>
+<a href="/reject/{{ user[0] }}" class="btn btn-danger btn-sm">Reject</a>
+
+</div>
+
+{% endfor %}
+
+{% else %}
+
+<p style="padding:10px;">No pending approvals</p>
+
+{% endif %}
+
+</div>
+
+</div>
+{% endif %}
+
+<div class="profile">
+
+<span class="icon" onclick="toggleProfile()">👤</span>
+
+<div class="profile-menu" id="profileMenu">
+
+<a href="/logout">Logout</a>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="content">
+
+<div class="welcome">
+<h1>Welcome back 👋</h1>
+<p>Explore the latest interview experiences shared by seniors.</p>
+</div>
+
+<div class="stats">
+
+<div class="card">
+<h3>Total Experiences</h3>
+<h1>{{ total_exp }}</h1>
+<p>Shared by seniors</p>
+</div>
+
+<div class="card">
+<h3>Companies</h3>
+<h1>{{ companies_count }}</h1>
+<p>Top recruiters covered</p>
+</div>
+
+<div class="card">
+<h3>Latest Year</h3>
+<h1>{{ latest_year }}</h1>
+<p>Most recent data</p>
+</div>
+
+</div>
+
+<div class="section">
+
+<h2>Recent Experiences</h2>
+
+{% for exp in experiences %}
+
+<div class="experience">
+
+<h4>{{ exp[1] }} – {{ exp[2] }}</h4>
+
+<p><b>Year:</b> {{ exp[3] }}</p>
+
+<p>{{ exp[4] }}</p>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+
+{% if role == "contributor" or role == "admin" %}
+<a href="/share" class="share-btn">+ Share Experience</a>
+{% endif %}
+
+<script>
+
+function toggleNotif() {
+
+var dropdown = document.getElementById("notifDropdown");
+
+if (dropdown.style.display === "block") {
+dropdown.style.display = "none";
+} else {
+dropdown.style.display = "block";
+}
+
+}
+
+window.onclick = function(event) {
+
+if (!event.target.matches('.icon')) {
+
+var dropdown = document.getElementById("notifDropdown");
+if (dropdown) {
+dropdown.style.display = "none";
+}
+
+}
+
+}
+
+</script>
+<script>
+
+function toggleProfile() {
+
+var menu = document.getElementById("profileMenu");
+
+if (menu.style.display === "block") {
+menu.style.display = "none";
+} else {
+menu.style.display = "block";
+}
+
+}
+
+window.onclick = function(event) {
+
+if (!event.target.matches('.icon')) {
+
+var menu = document.getElementById("profileMenu");
+
+if(menu){
+menu.style.display="none";
+}
+
+}
+
+}
+
+</script>
+</body>
+</html>

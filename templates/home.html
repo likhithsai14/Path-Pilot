@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PathPilot</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+
+    /* Navy → Violet Animated Gradient */
+    background: linear-gradient(-45deg, #001f3f, #0a0f5c, #4b0082, #6a0dad);
+    background-size: 400% 400%;
+    animation: gradientBG 12s ease infinite;
+}
+
+/* Gradient Animation */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.content {
+    text-align: center;
+    color: white;
+}
+
+/* Title Section */
+.title-section {
+    margin-bottom: 80px; /* Push buttons lower */
+}
+
+/* Title Styling */
+.title-section h1 {
+    font-size: 65px;
+    font-weight: 900;
+    transition: all 0.4s ease;
+    display: inline-block;
+}
+
+/* Hover → Slight Zoom OUT */
+.title-section h1:hover {
+    transform: scale(0.93);
+    text-shadow: 0 0 25px rgba(255,255,255,0.6);
+}
+
+/* Subtitle */
+.subtitle {
+    font-size: 20px;
+    opacity: 0.9;
+    margin-top: 12px;
+}
+
+/* Buttons */
+.btn-role {
+    width: 200px;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 40px;
+    margin: 15px;
+    transition: all 0.3s ease;
+}
+
+/* Button Hover */
+.btn-role:hover {
+    transform: translateY(-8px) scale(1.07);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.4);
+}
+
+/* Button Click */
+.btn-role:active {
+    transform: scale(0.95);
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="content">
+
+    <div class="title-section">
+        <h1>🚀 PathPilot</h1>
+        <div class="subtitle">
+            Your centralized hub for placement insights, preparation, and success.
+        </div>
+    </div>
+
+    <h3 class="mb-4">Select Your Role</h3>
+
+    <div>
+        <a href="/login/student" class="btn btn-primary btn-role">
+            Student
+        </a>
+
+        <a href="/login/contributor" class="btn btn-info btn-role">
+            Contributor
+        </a>
+
+        <a href="/login/admin" class="btn btn-warning btn-role">
+            Admin
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>
