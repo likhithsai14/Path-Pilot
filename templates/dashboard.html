@@ -435,7 +435,7 @@ body{display:block;}
 <div class="logo">🚀 PathPilot</div>
 
 {% if role == "admin" %}
-<a href="/admin/home" {% if page == "home" %}class="active"{% endif %}>🏠 Home</a>
+<a href="/" {% if page == "home" %}class="active"{% endif %}>🏠 Home</a>
 <a href="/admin/home" {% if page == "dashboard" %}class="active"{% endif %}>📊 Dashboard</a>
 {% else %}
 <a href="/" {% if page == "home" %}class="active"{% endif %}>🏠 Home</a>

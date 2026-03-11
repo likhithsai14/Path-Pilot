@@ -292,6 +292,46 @@ def test_db():
 
 @app.route("/")
 def home():
+    # Handle admin sessions (admin login does not set session["role"])
+    if is_admin_authenticated() and "role" not in session:
+        admin_username = session.get("admin_user", "Admin")
+        conn = sqlite3.connect("database.db")
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT e.*, u.role, u.designation
+            FROM experience_views ev
+            JOIN experiences e ON ev.experience_id = e.id
+            LEFT JOIN users u ON e.posted_by = u.username
+            WHERE ev.username=?
+            ORDER BY ev.last_viewed DESC
+            LIMIT 30
+        """, (admin_username,))
+        experiences = cur.fetchall()
+        verified_ids = get_verified_ids(cur)
+        cur.execute("""
+            SELECT id, username, designation
+            FROM users
+            WHERE role='contributor' AND approved=0
+        """)
+        pending_users = cur.fetchall()
+        doubts, doubt_answers = get_doubt_data(cur, limit=20)
+        conn.close()
+        return render_template(
+            "dashboard.html",
+            user=admin_username,
+            display_name="Admin",
+            role="admin",
+            experiences=experiences,
+            verified_ids=verified_ids,
+            bookmarked_ids=set(),
+            pending_users=pending_users,
+            admin_notifications=[],
+            notification_count=0,
+            doubts=doubts,
+            doubt_answers=doubt_answers,
+            page="home"
+        )
+
     if "role" not in session:
         return render_template("home.html", is_logged_in=False)
 
