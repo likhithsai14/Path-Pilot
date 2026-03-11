@@ -5,52 +5,389 @@
 <title>Companies</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 
 <style>
 
-body{
-background:#f3f6fb;
-font-family:Segoe UI;
+:root{
+--bg:#f4f7fc;
+--surface:#ffffff;
+--line:#dbe4f0;
+--brand:#0f766e;
+--brand-deep:#115e59;
+--indigo:#4f46e5;
 }
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+body{
+background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);
+min-height:100vh;
+padding:25px;
+}
+
+/* HEADER */
+
+.header{
+background:rgba(255,255,255,0.85);
+backdrop-filter:blur(10px);
+padding:28px;
+border-radius:16px;
+box-shadow:0 12px 28px rgba(15,23,42,0.08);
+margin-bottom:40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:15px;
+border:1px solid var(--line);
+}
+
+.header-title{
+font-size:26px;
+font-weight:700;
+font-family:'Poppins',sans-serif;
+color:#111827;
+}
+
+.header-subtitle{
+font-size:14px;
+color:#6b7280;
+margin-top:5px;
+}
+
+/* ADD BUTTON */
+
+.btn-add{
+background:linear-gradient(135deg,var(--brand),var(--brand-deep));
+color:white;
+padding:11px 26px;
+border:none;
+border-radius:12px;
+font-weight:600;
+font-size:14px;
+cursor:pointer;
+transition:all 0.35s ease;
+text-decoration:none;
+box-shadow:0 8px 18px rgba(15,118,110,0.3);
+}
+
+.btn-add:hover{
+transform:translateY(-4px);
+box-shadow:0 14px 30px rgba(15,118,110,0.35);
+color:white;
+}
+
+/* COMPANY GRID */
+
+.companies-container{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(350px,1fr));
+gap:28px;
+}
+
+/* COMPANY CARD */
 
 .company-card{
-background:white;
-padding:25px;
-border-radius:15px;
-margin-bottom:20px;
-box-shadow:0 4px 12px rgba(0,0,0,0.05);
-font-size:18px;
+background:var(--surface);
+padding:30px;
+border-radius:18px;
+box-shadow:0 10px 24px rgba(15,23,42,0.07);
+transition:all 0.35s ease;
+border:1px solid var(--line);
+position:relative;
+overflow:hidden;
 }
 
+/* gradient top highlight */
+
+.company-card::before{
+content:'';
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:4px;
+background:linear-gradient(90deg,var(--brand),var(--indigo));
+opacity:0;
+transition:0.3s;
+}
+
+.company-card:hover::before{
+opacity:1;
+}
+
+.company-card:hover{
+transform:translateY(-10px);
+box-shadow:0 18px 36px rgba(15,23,42,0.12);
+}
+
+.company-name{
+font-size:19px;
+font-weight:700;
+color:#111827;
+margin-bottom:8px;
+font-family:'Poppins',sans-serif;
+}
+
+.company-date{
+font-size:14px;
+color:#6b7280;
+margin-bottom:20px;
+}
+
+/* VIEW BUTTON */
+
+.btn-view{
+background:var(--indigo);
+color:white;
+padding:10px 20px;
+border:none;
+border-radius:10px;
+font-weight:600;
+font-size:13px;
+cursor:pointer;
+text-decoration:none;
+transition:all 0.3s ease;
+}
+
+.btn-view:hover{
+background:#4338ca;
+transform:translateY(-2px);
+color:white;
+}
+
+/* EXPERIENCES */
+
+.section-title{
+margin-top:70px;
+margin-bottom:30px;
+font-size:24px;
+font-weight:700;
+color:#111827;
+font-family:'Poppins',sans-serif;
+}
+
+/* EXPERIENCE CARD */
+
+.experience-card{
+background:var(--surface);
+padding:22px;
+border-radius:14px;
+margin-bottom:16px;
+box-shadow:0 8px 18px rgba(15,23,42,0.06);
+transition:all 0.3s ease;
+border-left:4px solid var(--brand);
+border:1px solid var(--line);
+cursor:pointer;
+}
+
+.experience-card:hover{
+transform:translateY(-4px);
+box-shadow:0 14px 26px rgba(15,23,42,0.1);
+}
+
+.experience-card h5{
+font-weight:600;
+margin-bottom:8px;
+color:#111827;
+}
+
+.experience-card p{
+font-size:14px;
+color:#6b7280;
+line-height:1.6;
+}
+
+.experience-description{
+white-space:pre-line;
+}
+
+/* BACK BUTTON */
+
+.back-btn{
+background:linear-gradient(135deg,#6b7280,#4b5563);
+color:white;
+padding:12px 28px;
+border:none;
+border-radius:12px;
+font-weight:600;
+font-size:14px;
+cursor:pointer;
+text-decoration:none;
+display:inline-block;
+margin-top:45px;
+transition:0.3s;
+box-shadow:0 6px 18px rgba(0,0,0,0.2);
+}
+
+.back-btn:hover{
+transform:translateY(-3px);
+box-shadow:0 12px 25px rgba(0,0,0,0.25);
+color:white;
+}
+.company-card{
+position:relative;
+}
+
+/* 3-dot container */
+
+.menu-container{
+position:absolute;
+top:15px;
+right:18px;
+}
+
+/* dots */
+
+.menu-dots{
+font-size:22px;
+cursor:pointer;
+padding:5px 10px;
+border-radius:6px;
+}
+
+.menu-dots:hover{
+background:#f3f4f6;
+}
+
+/* dropdown */
+
+.menu-dropdown{
+display:none;
+position:absolute;
+right:0;
+top:28px;
+background:white;
+border-radius:8px;
+box-shadow:0 10px 25px rgba(0,0,0,0.15);
+overflow:hidden;
+min-width:130px;
+z-index:100;
+}
+
+.menu-dropdown a{
+display:block;
+padding:10px 14px;
+text-decoration:none;
+color:#374151;
+font-size:13px;
+}
+
+.menu-dropdown a:hover{
+background:#f3f4f6;
+}
+
+@media (max-width:760px){
+body{padding:16px;}
+.header{padding:20px;}
+.companies-container{grid-template-columns:1fr;gap:16px;}
+.company-card{padding:20px;}
+}
 </style>
 
 </head>
 
 <body>
 
-<div class="container mt-5">
+<!-- HEADER -->
 
-<h2 class="mb-4">Upcoming Companies</h2>
+<div class="header">
+
+<div>
+<div class="header-title">🏢 Upcoming Companies</div>
+<div class="header-subtitle">Browse recruitment opportunities from leading organizations</div>
+</div>
 
 {% if role == "admin" %}
-<a href="/admin/add_company" class="btn btn-warning mb-4">
+<a href="/admin/add_company" class="btn-add">
 + Add Company
 </a>
 {% endif %}
 
+</div>
+
+<!-- UPCOMING COMPANIES -->
+
 {% if companies %}
+
+<div class="companies-container">
 
 {% for company in companies %}
 
 <div class="company-card">
 
-<h4>{{ company[0] }}</h4>
+<div class="company-name">{{ company[0] }}</div>
 
-<p>Drive Date: <b>{{ company[1] }}</b></p>
+<div class="company-date">
+📅 Drive Date: <strong>{{ company[1] }}</strong>
+</div>
 
-<a href="/company/{{ company[0] }}" class="btn btn-sm btn-dark">
-View Experiences
+<a href="/company/{{ company[0] }}" class="btn-view">
+View {{ company[0] }} Experiences →
 </a>
+
+{% if role == "admin" %}
+
+<div class="menu-container">
+
+<div class="menu-dots" onclick="toggleMenu(this)">⋮</div>
+
+<div class="menu-dropdown">
+<a href="/admin/edit_company/{{ company[0] }}">✏️ Edit</a>
+<a href="/admin/delete_company/{{ company[0] }}">🗑 Delete</a>
+</div>
+
+</div>
+
+{% endif %}
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% else %}
+
+<p>No upcoming companies.</p>
+
+{% endif %}
+
+
+
+<!-- INTERVIEW EXPERIENCES SECTION -->
+
+<div class="section-title">📚 Interview Experiences</div>
+
+{% if experiences %}
+
+{% for exp in experiences %}
+
+<div class="experience-card" onclick="trackExperienceAndOpen('{{ exp[0] }}','{{ exp[1] }}')">
+
+<h5>{{ exp[1] }} – {{ exp[2] }}</h5>
+
+{% if verified_ids and exp[0] in verified_ids %}
+<span class="badge bg-success" style="margin-bottom:8px;">✅ Verified</span>
+{% endif %}
+
+<p><b>Year:</b> {{ exp[3] }}</p>
+
+<p><b>Posted By:</b> {% if exp[10] == "admin" %}Admin{% elif exp[5] == user %}You{% else %}{{ exp[5] }}{% endif %}</p>
+
+<p class="experience-description">{{ exp[4] }}</p>
+
+{% if exp[10] == "admin" %}
+<span class="badge bg-danger">Admin</span>
+{% elif exp[10] == "contributor" %}
+<span class="badge bg-primary">{{ exp[11] }}</span>
+{% endif %}
 
 </div>
 
@@ -58,15 +395,45 @@ View Experiences
 
 {% else %}
 
-<p>No upcoming companies yet.</p>
+<p>No interview experiences yet.</p>
 
 {% endif %}
 
-<br>
 
-<a href="/dashboard" class="btn btn-secondary">Back</a>
+<center>
+<a href="/dashboard" class="back-btn">← Back to Dashboard</a>
+</center>
+<script>
 
-</div>
+function trackExperienceAndOpen(expId, companyName){
+fetch('/experience/view/' + expId, {method:'POST'})
+	.catch(()=>{})
+	.finally(()=>{
+		window.location.href = '/company/' + companyName;
+	});
+}
 
+function toggleMenu(el){
+
+let menu = el.nextElementSibling;
+
+document.querySelectorAll(".menu-dropdown").forEach(m=>{
+if(m !== menu) m.style.display="none";
+});
+
+menu.style.display =
+menu.style.display === "block" ? "none" : "block";
+
+}
+
+window.onclick = function(e){
+if(!e.target.matches('.menu-dots')){
+document.querySelectorAll(".menu-dropdown").forEach(menu=>{
+menu.style.display="none";
+});
+}
+}
+
+</script>
 </body>
 </html>

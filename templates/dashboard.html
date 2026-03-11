@@ -7,229 +7,422 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-    .profile{
-position:relative;
-cursor:pointer;
+:root{
+--bg:#f4f7fc;
+--ink:#0f172a;
+--muted:#64748b;
+--surface:#ffffff;
+--line:#dbe4f0;
+--brand:#0f766e;
+--brand-soft:#ccfbf1;
+--brand-deep:#115e59;
+--indigo:#4f46e5;
 }
 
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+
+body{
+background:linear-gradient(180deg,#f8fbff 0%, var(--bg) 100%);
+color:var(--ink);
+display:flex;
+min-height:100vh;
+}
+
+.profile{position:relative;cursor:pointer;}
+.notification-bell{position:relative;cursor:pointer;}
+
+.notification-count{
+position:absolute;
+top:-6px;
+right:-10px;
+background:#ef4444;
+color:white;
+font-size:10px;
+font-weight:700;
+padding:2px 6px;
+border-radius:999px;
+line-height:1;
+}
+
+.notification-dropdown,
 .profile-menu{
 display:none;
 position:absolute;
 right:0;
-top:35px;
-background:white;
-border-radius:10px;
-box-shadow:0 8px 20px rgba(0,0,0,0.15);
-padding:10px;
-width:120px;
+top:36px;
+background:var(--surface);
+border:1px solid var(--line);
+border-radius:12px;
+box-shadow:0 16px 30px rgba(15,23,42,0.12);
+z-index:100;
 }
+
+.notification-dropdown{
+width:300px;
+padding:10px;
+max-height:400px;
+overflow-y:auto;
+}
+
+.notification-item{
+border-bottom:1px solid #eef2f7;
+padding:12px 10px;
+font-size:13px;
+color:#334155;
+}
+
+.notification-item:last-child{border-bottom:none;}
+
+.notification-meta{
+font-size:11px;
+color:#64748b;
+margin-top:6px;
+}
+
+.notification-actions{display:flex;gap:8px;margin-top:8px;}
+
+.notification-actions a{
+font-size:12px;
+text-decoration:none;
+padding:4px 8px;
+border-radius:6px;
+}
+
+.approve-link{background:#dcfce7;color:#166534;}
+.reject-link{background:#fee2e2;color:#991b1b;}
+
+.profile-menu{padding:8px;width:152px;}
 
 .profile-menu a{
 display:block;
 text-decoration:none;
-color:black;
-padding:6px 10px;
-border-radius:6px;
+color:#334155;
+padding:8px 10px;
+border-radius:8px;
+font-size:13px;
 }
 
-.profile-menu a:hover{
-background:#f3f4f6;
-}
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Inter',sans-serif;
-}
-
-body{
-background:#f9fafb;
-display:flex;
-}
-
-/* Sidebar */
+.profile-menu a:hover{background:#f1f5f9;}
 
 .sidebar{
-width:230px;
+width:248px;
 height:100vh;
-background:white;
-padding:25px;
-border-right:1px solid #e5e7eb;
+position:sticky;
+top:0;
+background:linear-gradient(180deg,#ffffff,#f8fbff);
+padding:24px 18px;
+border-right:1px solid var(--line);
+display:flex;
+flex-direction:column;
 }
 
 .logo{
 font-size:20px;
-font-weight:700;
-margin-bottom:30px;
+font-weight:800;
+letter-spacing:0.3px;
+margin-bottom:26px;
+padding:10px 12px;
+background:var(--brand-soft);
+border-radius:12px;
+color:var(--brand-deep);
 }
 
 .sidebar a{
 display:flex;
 align-items:center;
-padding:12px 15px;
-margin-bottom:10px;
+padding:11px 13px;
+margin-bottom:8px;
 text-decoration:none;
-color:#374151;
+color:#334155;
 border-radius:10px;
-transition:0.2s;
+transition:all 0.2s ease;
+font-size:14px;
+font-weight:500;
 }
 
 .sidebar a:hover{
 background:#eef2ff;
+color:#312e81;
+transform:translateX(3px);
 }
 
 .sidebar .active{
 background:#e0e7ff;
-color:#4f46e5;
-font-weight:600;
+color:#3730a3;
+font-weight:700;
 }
 
-/* Main Area */
-
-.main{
-flex:1;
-}
-
-/* Header */
+.main{flex:1;min-width:0;}
 
 .header{
-height:70px;
-background:white;
+height:74px;
+position:sticky;
+top:0;
+z-index:20;
+background:rgba(255,255,255,0.82);
+backdrop-filter:blur(8px);
 display:flex;
 align-items:center;
 justify-content:space-between;
 padding:0 30px;
-border-bottom:1px solid #e5e7eb;
+border-bottom:1px solid var(--line);
 }
 
-.header-right{
-display:flex;
-align-items:center;
-gap:20px;
-}
+.header-right{display:flex;align-items:center;gap:20px;}
 
 .icon{
 font-size:18px;
 cursor:pointer;
+display:flex;
+align-items:center;
+width:34px;
+height:34px;
+justify-content:center;
+background:#f1f5f9;
+border-radius:999px;
 }
 
-/* Notification */
+.content{padding:30px;}
 
-.notification{
-position:relative;
-}
-
-.dropdown{
-display:none;
-position:absolute;
-right:0;
-top:35px;
-background:white;
-width:260px;
-border-radius:10px;
-box-shadow:0 8px 20px rgba(0,0,0,0.15);
-padding:10px;
-z-index:100;
-}
-
-.notif-item{
-border-bottom:1px solid #eee;
-padding:10px;
-}
-
-.notif-item:last-child{
-border-bottom:none;
-}
-
-/* Content */
-
-.content{
-padding:35px;
-}
-
-.welcome h1{
-font-size:30px;
-margin-bottom:5px;
-}
-
-.welcome p{
-color:#6b7280;
-}
-
-/* Cards */
+.welcome h1{font-size:28px;margin-bottom:6px;letter-spacing:-0.3px;}
+.welcome p{color:var(--muted);font-size:14px;}
 
 .stats{
-display:flex;
-gap:20px;
-margin-top:30px;
+display:grid;
+grid-template-columns:repeat(3,minmax(0,1fr));
+gap:18px;
+margin-top:28px;
 }
 
 .card{
-flex:1;
-background:white;
-padding:25px;
+background:var(--surface);
+padding:24px;
 border-radius:16px;
-box-shadow:0 6px 20px rgba(0,0,0,0.05);
-transition:0.3s;
+border:1px solid var(--line);
+box-shadow:0 8px 22px rgba(15,23,42,0.06);
+transition:transform 0.2s ease, box-shadow 0.2s ease;
+position:relative;
+overflow:hidden;
 }
 
-.card:hover{
-transform:translateY(-5px);
+.card::before{
+content:"";
+position:absolute;
+left:0;
+top:0;
+width:100%;
+height:3px;
+background:linear-gradient(90deg,var(--brand),var(--indigo));
 }
 
-.card h3{
-color:#6b7280;
-font-size:15px;
-}
+.card:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(15,23,42,0.1);}
 
-.card h1{
-margin:10px 0;
-font-size:32px;
-}
+.card h3{color:var(--muted);font-size:13px;font-weight:600;}
+.card h1{margin:10px 0;font-size:30px;line-height:1;}
+.card p{font-size:12px;color:#64748b;}
 
-/* Experiences */
-
-.section{
-margin-top:40px;
-}
+.section{margin-top:36px;}
+.section h2{font-size:21px;}
 
 .experience{
-background:white;
+background:var(--surface);
 padding:20px;
 border-radius:14px;
-box-shadow:0 5px 15px rgba(0,0,0,0.05);
-margin-top:15px;
+border:1px solid var(--line);
+box-shadow:0 6px 16px rgba(15,23,42,0.05);
+margin-top:14px;
+cursor:pointer;
+transition:all 0.25s ease;
 }
 
-.experience h4{
-margin-bottom:6px;
+.experience:hover{
+transform:translateY(-3px);
+box-shadow:0 14px 24px rgba(15,23,42,0.1);
+border-color:#c9d8eb;
 }
 
-.experience p{
-color:#6b7280;
-font-size:14px;
+.experience h4{margin-bottom:7px;font-size:17px;}
+.experience p{color:#64748b;font-size:12px;line-height:1.7;}
+.experience-description{white-space:pre-line;}
+
+.badge-role{
+display:inline-block;
+padding:4px 10px;
+border-radius:999px;
+font-size:11px;
+font-weight:700;
+margin-left:8px;
 }
 
-/* Floating Button */
+.badge-admin{background:#fee2e2;color:#991b1b;}
+.badge-senior{background:#dbeafe;color:#1e3a8a;}
+.badge-alumni{background:#dcfce7;color:#166534;}
 
 .share-btn{
 position:fixed;
-right:30px;
-bottom:30px;
-background:#4f46e5;
+right:28px;
+bottom:24px;
+background:linear-gradient(135deg,var(--brand),var(--brand-deep));
 color:white;
-padding:15px 22px;
-border-radius:14px;
-font-weight:600;
-box-shadow:0 10px 25px rgba(79,70,229,0.3);
+padding:13px 20px;
+border-radius:12px;
+font-weight:700;
+font-size:14px;
+box-shadow:0 12px 24px rgba(15,118,110,0.35);
 cursor:pointer;
-transition:0.2s;
 text-decoration:none;
+z-index:25;
 }
 
-.share-btn:hover{
-background:#4338ca;
+.share-btn:hover{filter:brightness(1.05);}
+
+.modal-overlay{
+display:none;
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(15,23,42,0.52);
+z-index:1000;
+align-items:center;
+justify-content:center;
+}
+
+.modal-overlay.active{display:flex;}
+
+.modal-content{
+background:var(--surface);
+border-radius:16px;
+padding:30px;
+border:1px solid var(--line);
+max-width:640px;
+width:92%;
+max-height:84vh;
+overflow-y:auto;
+}
+
+.modal-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:22px;
+border-bottom:1px solid var(--line);
+padding-bottom:14px;
+}
+
+.modal-title{font-size:24px;font-weight:800;}
+
+.modal-close{
+background:none;
+border:none;
+font-size:24px;
+cursor:pointer;
+color:#64748b;
+}
+
+.detail-item{
+border-bottom:1px solid #eef2f7;
+padding-bottom:12px;
+margin-bottom:10px;
+}
+
+.detail-label{
+font-size:11px;
+font-weight:700;
+color:var(--indigo);
+text-transform:uppercase;
+letter-spacing:0.5px;
+margin-bottom:6px;
+}
+
+.detail-value{font-size:15px;color:#1f2937;}
+#modalDescription{white-space:pre-line;}
+
+.alert-wrap{margin-top:14px;}
+
+.doubt-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+margin-top:16px;
+}
+
+.doubt-card{
+background:var(--surface);
+padding:18px;
+border-radius:14px;
+border:1px solid var(--line);
+box-shadow:0 8px 20px rgba(15,23,42,0.05);
+}
+
+.doubt-title{font-size:16px;font-weight:700;margin-bottom:8px;color:#0f172a;}
+.doubt-meta{font-size:12px;color:#64748b;margin-bottom:10px;}
+.doubt-question{font-size:14px;color:#334155;line-height:1.6;white-space:pre-line;}
+
+.answer-list{margin-top:10px;border-top:1px dashed #e2e8f0;padding-top:10px;}
+.answer-item{background:#f8fbff;border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-top:8px;}
+.answer-text{font-size:13px;color:#334155;line-height:1.55;white-space:pre-line;}
+.answer-meta{font-size:11px;color:#64748b;margin-top:5px;}
+
+.doubt-form textarea,
+.answer-form textarea{
+width:100%;
+border:1px solid #cbd5e1;
+border-radius:10px;
+padding:10px;
+font-size:13px;
+resize:vertical;
+}
+
+.doubt-form textarea:focus,
+.answer-form textarea:focus{
+outline:none;
+border-color:#93c5fd;
+box-shadow:0 0 0 2px rgba(59,130,246,0.14);
+}
+
+.btn-doubt{
+margin-top:10px;
+background:linear-gradient(135deg,var(--brand),var(--brand-deep));
+border:none;
+color:#fff;
+font-size:13px;
+font-weight:700;
+padding:9px 14px;
+border-radius:10px;
+cursor:pointer;
+}
+
+.btn-doubt:hover{filter:brightness(1.05);}
+
+.mini-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.btn-mini{
+border:none;
+font-size:12px;
+font-weight:700;
+padding:6px 10px;
+border-radius:8px;
+cursor:pointer;
+}
+.btn-edit{background:#dbeafe;color:#1e3a8a;}
+.btn-delete{background:#fee2e2;color:#991b1b;}
+
+.inline-edit{margin-top:10px;display:none;}
+.inline-edit.active{display:block;}
+
+@media (max-width:980px){
+.sidebar{width:220px;}
+.stats{grid-template-columns:1fr;}
+.doubt-grid{grid-template-columns:1fr;}
+}
+
+@media (max-width:760px){
+body{display:block;}
+.sidebar{width:100%;height:auto;position:static;border-right:none;border-bottom:1px solid var(--line);}
+.header{position:static;}
+.content{padding:20px 16px;}
+.share-btn{right:16px;bottom:16px;}
 }
 
 </style>
@@ -241,10 +434,23 @@ background:#4338ca;
 
 <div class="logo">🚀 PathPilot</div>
 
-<a class="active" href="/dashboard">🏠 Home</a>
+{% if role == "admin" %}
+<a href="/admin/home" {% if page == "home" %}class="active"{% endif %}>🏠 Home</a>
+<a href="/admin/home" {% if page == "dashboard" %}class="active"{% endif %}>📊 Dashboard</a>
+{% else %}
+<a href="/" {% if page == "home" %}class="active"{% endif %}>🏠 Home</a>
+<a href="/dashboard" {% if page == "dashboard" %}class="active"{% endif %}>📊 Dashboard</a>
+{% endif %}
 <a href="/search">🔍 Search</a>
 <a href="/companies">🏢 Companies</a>
-<a href="/dashboard">📊 Dashboard</a>
+
+{% if role == "admin" %}
+<a href="/admin/controls">⚙️ Admin Controls</a>
+{% endif %}
+
+{% if role != "admin" %}
+<a href="/bookmarks">⭐ My Bookmarks</a>
+{% endif %}
 
 </div>
 
@@ -258,48 +464,54 @@ background:#4338ca;
 
 <div class="header-right">
 
+<div class="notification-bell">
+<span class="icon" onclick="toggleNotifications()">🔔</span>
+{% if role == "admin" and pending_users and pending_users|length > 0 %}
+<span class="notification-count" id="notificationCount">{{ pending_users|length }}</span>
+{% elif role != "admin" and notification_count and notification_count > 0 %}
+<span class="notification-count" id="notificationCount">{{ notification_count }}</span>
+{% endif %}
+
+<div class="notification-dropdown" id="notificationDropdown">
 {% if role == "admin" %}
-<div class="notification">
-
-<span class="icon" onclick="toggleNotif()">🔔 ({{ pending_users|length }})</span>
-
-<div class="dropdown" id="notifDropdown">
-
-{% if pending_users %}
-
-{% for user in pending_users %}
-
-<div class="notif-item">
-
-<strong>{{ user[1] }}</strong><br>
-<small>{{ user[2] }}</small><br><br>
-
-<a href="/approve/{{ user[0] }}" class="btn btn-success btn-sm">Approve</a>
-<a href="/reject/{{ user[0] }}" class="btn btn-danger btn-sm">Reject</a>
-
-</div>
-
-{% endfor %}
-
+	{% if pending_users and pending_users|length > 0 %}
+		{% for req in pending_users %}
+		<div class="notification-item">
+			<strong>{{ req[1] }}</strong>
+			<div style="font-size:12px;color:#6b7280;">{{ req[2] }}</div>
+			<div class="notification-actions">
+				<a class="approve-link" href="/approve/{{ req[0] }}">Accept</a>
+				<a class="reject-link" href="/reject/{{ req[0] }}">Reject</a>
+			</div>
+		</div>
+		{% endfor %}
+	{% else %}
+		<div class="notification-item">No pending contributor approvals.</div>
+	{% endif %}
 {% else %}
-
-<p style="padding:10px;">No pending approvals</p>
-
+	{% if admin_notifications and admin_notifications|length > 0 %}
+		{% for notice in admin_notifications %}
+		<div class="notification-item">
+			<strong>Admin Message</strong>
+			<div>{{ notice[1] }}</div>
+			<div class="notification-meta">Audience: {{ notice[2]|capitalize }} | {{ notice[4] }}</div>
+		</div>
+		{% endfor %}
+	{% else %}
+		<div class="notification-item">No messages</div>
+	{% endif %}
 {% endif %}
-
 </div>
-
 </div>
-{% endif %}
 
 <div class="profile">
-
 <span class="icon" onclick="toggleProfile()">👤</span>
 
 <div class="profile-menu" id="profileMenu">
-
+{% if role != "admin" %}
+<a href="/profile">Profile Settings</a>
+{% endif %}
 <a href="/logout">Logout</a>
-
 </div>
 
 </div>
@@ -310,52 +522,222 @@ background:#4338ca;
 
 <div class="content">
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="alert-wrap">
+{% for category, message in messages %}
+<div class="alert {{ 'alert-success' if category == 'success' else 'alert-danger' }}" role="alert">{{ message }}</div>
+{% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
 <div class="welcome">
-<h1>Welcome back 👋</h1>
+<h1>Welcome back, {{ display_name }} 👋</h1>
 <p>Explore the latest interview experiences shared by seniors.</p>
 </div>
+
+{% if page == "dashboard" %}
 
 <div class="stats">
 
 <div class="card">
-<h3>Total Experiences</h3>
-<h1>{{ total_exp }}</h1>
-<p>Shared by seniors</p>
+<h3>📚 Total Reviews</h3>
+<h1>{{ total_reviews }}</h1>
+<p>Interview experiences available</p>
 </div>
 
 <div class="card">
-<h3>Companies</h3>
-<h1>{{ companies_count }}</h1>
-<p>Top recruiters covered</p>
+{% if role == "admin" %}
+<h3>👥 Total Contributors</h3>
+<h1>{{ total_contributors }}</h1>
+<p>Contributors registered</p>
+{% else %}
+<h3>⭐ Saved Bookmarks</h3>
+<h1>{{ total_bookmarks }}</h1>
+<p>Your saved experiences</p>
+{% endif %}
 </div>
 
 <div class="card">
-<h3>Latest Year</h3>
-<h1>{{ latest_year }}</h1>
-<p>Most recent data</p>
+<h3>🏢 Companies</h3>
+<h1>{{ total_companies }}</h1>
+<p>Companies listed</p>
 </div>
 
 </div>
+
+{% if page == "dashboard" and role in ["student", "contributor", "admin"] %}
+<div class="section">
+{% if role == "student" %}
+<h2>Ask Your Doubt</h2>
+<p style="margin-top:8px;color:#64748b;font-size:13px;">Post your question and contributors can answer it.</p>
+<form class="doubt-form" method="POST" action="/doubts/ask" style="margin-top:10px;">
+<textarea name="question" rows="4" maxlength="500" placeholder="Type your doubt clearly so contributors can help you faster..." required></textarea>
+<button class="btn-doubt" type="submit">Post Doubt</button>
+</form>
+{% else %}
+<h2>Student Doubts</h2>
+<p style="margin-top:8px;color:#64748b;font-size:13px;">Reply to student doubts to help them prepare better.</p>
+{% endif %}
+
+<div class="doubt-grid">
+{% if doubts and doubts|length > 0 %}
+{% for doubt in doubts %}
+<div class="doubt-card">
+<div class="doubt-title">Doubt #{{ doubt[0] }}</div>
+<div class="doubt-meta">Asked by {% if doubt[2] == user %}You{% else %}{{ doubt[2] }}{% endif %} | {{ doubt[3] }} | Answers: {{ doubt[4] }}</div>
+<div class="doubt-question">{{ doubt[1] }}</div>
+
+{% set ns = namespace(contributor_already_answered=false) %}
+{% if role in ["contributor", "admin"] and doubt_answers and doubt[0] in doubt_answers %}
+{% for ans in doubt_answers[doubt[0]] %}
+{% if ans[3] == user %}
+{% set ns.contributor_already_answered = true %}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if role == "student" and user == doubt[2] %}
+<div class="mini-actions">
+<button class="btn-mini btn-edit" type="button" onclick="toggleInlineEdit('doubt-edit-{{ doubt[0] }}')">Edit</button>
+<form method="POST" action="/doubts/delete/{{ doubt[0] }}" onsubmit="return confirm('Delete this doubt?');" style="display:inline;">
+<button class="btn-mini btn-delete" type="submit">Delete</button>
+</form>
+</div>
+<form class="doubt-form inline-edit" id="doubt-edit-{{ doubt[0] }}" method="POST" action="/doubts/edit/{{ doubt[0] }}">
+<textarea name="question" rows="3" maxlength="500" required>{{ doubt[1] }}</textarea>
+<button class="btn-doubt" type="submit">Save Changes</button>
+</form>
+{% endif %}
+
+{% if role in ["contributor", "admin"] and not ns.contributor_already_answered %}
+<form class="answer-form" method="POST" action="/doubts/answer/{{ doubt[0] }}" style="margin-top:10px;">
+<textarea name="answer" rows="3" maxlength="500" placeholder="Write your answer here..." required></textarea>
+<button class="btn-doubt" type="submit">Submit Answer</button>
+</form>
+{% elif role in ["contributor", "admin"] and ns.contributor_already_answered %}
+<div class="answer-meta" style="margin-top:10px;">You already answered this doubt. You can edit or delete your answer below.</div>
+{% endif %}
+
+{% if doubt_answers and doubt[0] in doubt_answers %}
+<div class="answer-list">
+{% for ans in doubt_answers[doubt[0]] %}
+<div class="answer-item">
+<div class="answer-text">{{ ans[2] }}</div>
+<div class="answer-meta">Answered by {% if ans[3] == user %}You{% else %}{{ ans[3] }}{% endif %} | {{ ans[4] }}</div>
+
+{% if role in ["contributor", "admin"] and user == ans[3] %}
+<div class="mini-actions">
+<button class="btn-mini btn-edit" type="button" onclick="toggleInlineEdit('answer-edit-{{ ans[0] }}')">Edit</button>
+<form method="POST" action="/doubts/answer/delete/{{ ans[0] }}" onsubmit="return confirm('Delete this answer?');" style="display:inline;">
+<button class="btn-mini btn-delete" type="submit">Delete</button>
+</form>
+</div>
+<form class="answer-form inline-edit" id="answer-edit-{{ ans[0] }}" method="POST" action="/doubts/answer/edit/{{ ans[0] }}">
+<textarea name="answer" rows="3" maxlength="500" required>{{ ans[2] }}</textarea>
+<button class="btn-doubt" type="submit">Save Changes</button>
+</form>
+{% endif %}
+</div>
+{% endfor %}
+</div>
+{% elif role == "student" %}
+<div class="answer-list">
+<div class="answer-meta">No answers yet. Contributors will respond soon.</div>
+</div>
+{% endif %}
+</div>
+{% endfor %}
+{% else %}
+<div class="doubt-card">
+<div class="doubt-meta">No doubts posted yet.</div>
+</div>
+{% endif %}
+</div>
+</div>
+{% endif %}
+
+{% endif %}
+
+{% if page == "home" and experiences %}
 
 <div class="section">
 
-<h2>Recent Experiences</h2>
+<h2>Recently Viewed</h2>
 
 {% for exp in experiences %}
 
-<div class="experience">
+<div class="experience"
+data-expid="{{ exp[0] }}"
+data-company="{{ exp[1] }}"
+data-role="{{ exp[2] }}"
+data-year="{{ exp[3] }}"
+data-posted="{% if exp[10] == 'admin' %}Admin{% elif exp[5] == user %}You{% else %}{{ exp[5] }}{% endif %}"
+data-userrole="{{ exp[10] }}"
+data-designation="{{ exp[11] }}"
+onclick="openExperienceModal(this)">
 
-<h4>{{ exp[1] }} – {{ exp[2] }}</h4>
+<h4>{{ exp[1] }} – {{ exp[2] }}
+
+{% if verified_ids and exp[0] in verified_ids %}
+<span class="badge-role" style="background:#dcfce7;color:#166534;">✅ Verified</span>
+{% endif %}
+
+{% if exp[10] == 'admin' %}
+<span class="badge-role badge-admin">👨‍💼 Admin</span>
+
+{% elif exp[10] == 'contributor' %}
+
+{% if exp[11] == 'Final Year' %}
+<span class="badge-role badge-senior">🎓 Senior</span>
+
+{% elif exp[11] == 'Alumni' %}
+<span class="badge-role badge-alumni">🎯 Alumni</span>
+
+{% endif %}
+{% endif %}
+
+</h4>
 
 <p><b>Year:</b> {{ exp[3] }}</p>
 
-<p>{{ exp[4] }}</p>
+<p><b>Posted By:</b> {% if exp[10] == 'admin' %}Admin{% elif exp[5] == user %}You{% else %}{{ exp[5] }}{% endif %}</p>
+
+<p class="experience-description">{{ exp[4] }}</p>
+
+{% if role != "admin" %}
+<div style="margin-top:8px;">
+{% if exp[0] in bookmarked_ids %}
+<span
+style="font-size:12px;color:#059669;font-weight:600;"
+onclick="event.stopPropagation();">
+✅ Bookmarked
+</span>
+{% else %}
+<a href="/bookmark/{{ exp[0] }}"
+onclick="event.stopPropagation();"
+style="font-size:12px;color:#4f46e5;text-decoration:none;">
+🔖 Bookmark
+</a>
+{% endif %}
+</div>
+{% endif %}
 
 </div>
 
 {% endfor %}
 
 </div>
+
+{% elif page == "home" %}
+
+<div class="section">
+<h2>Recently Viewed</h2>
+<p style="margin-top:10px;color:#6b7280;">No recently viewed experiences yet. Open experiences from Search or Companies to see them here.</p>
+</div>
+
+{% endif %}
 
 </div>
 
@@ -365,62 +747,112 @@ background:#4338ca;
 <a href="/share" class="share-btn">+ Share Experience</a>
 {% endif %}
 
+<div class="modal-overlay" id="experienceModal">
+
+<div class="modal-content">
+
+<div class="modal-header">
+<h2 class="modal-title" id="modalCompany"></h2>
+<button class="modal-close" onclick="closeExperienceModal()">✕</button>
+</div>
+
+<div class="detail-item">
+<div class="detail-label">Job Role</div>
+<div class="detail-value" id="modalRole"></div>
+</div>
+
+<div class="detail-item">
+<div class="detail-label">Year</div>
+<div class="detail-value" id="modalYear"></div>
+</div>
+
+<div class="detail-item">
+<div class="detail-label">Posted By</div>
+<div class="detail-value" id="modalPostedBy"></div>
+</div>
+
+<div class="detail-item">
+<div class="detail-label">Posted As</div>
+<div class="detail-value" id="modalUserRole"></div>
+</div>
+
+<div class="detail-item">
+<div class="detail-label">Experience Details</div>
+<div class="detail-value" id="modalDescription"></div>
+</div>
+
+</div>
+
+</div>
+
 <script>
 
-function toggleNotif() {
+function toggleProfile(){
+var menu=document.getElementById("profileMenu");
+menu.style.display = menu.style.display==="block" ? "none" : "block";
+}
 
-var dropdown = document.getElementById("notifDropdown");
+function toggleNotifications(){
+var dropdown=document.getElementById("notificationDropdown");
+var willOpen = dropdown.style.display!=="block";
+dropdown.style.display = willOpen ? "block" : "none";
 
-if (dropdown.style.display === "block") {
-dropdown.style.display = "none";
-} else {
-dropdown.style.display = "block";
+if(willOpen && "{{ role }}" !== "admin"){
+fetch('/notifications/mark_read', {method:'POST'})
+.then(function(){
+var count=document.getElementById('notificationCount');
+if(count){count.style.display='none';}
+})
+.catch(function(){});
+}
+}
+
+function toggleInlineEdit(id){
+var el=document.getElementById(id);
+if(!el){return;}
+el.classList.toggle('active');
+}
+
+function openExperienceModal(card){
+
+let company=card.dataset.company;
+let role=card.dataset.role;
+let year=card.dataset.year;
+let description=card.querySelector('.experience-description')?.textContent || '';
+let postedBy=card.dataset.posted;
+let userRole=card.dataset.userrole;
+let designation=card.dataset.designation;
+let expId=card.dataset.expid;
+
+document.getElementById('modalCompany').textContent=company;
+document.getElementById('modalRole').textContent=role;
+document.getElementById('modalYear').textContent=year;
+document.getElementById('modalDescription').textContent=description;
+document.getElementById('modalPostedBy').textContent=postedBy;
+
+let roleDisplay='';
+
+if(userRole==='admin'){roleDisplay='👨‍💼 Admin';}
+else if(userRole==='contributor'){
+if(designation==='Final Year'){roleDisplay='🎓 Senior';}
+else if(designation==='Alumni'){roleDisplay='🎯 Alumni';}
+}
+
+document.getElementById('modalUserRole').textContent=roleDisplay;
+document.getElementById('experienceModal').classList.add('active');
+
+if(expId){
+fetch('/experience/view/' + expId, {method:'POST'}).catch(()=>{});
 }
 
 }
 
-window.onclick = function(event) {
-
-if (!event.target.matches('.icon')) {
-
-var dropdown = document.getElementById("notifDropdown");
-if (dropdown) {
-dropdown.style.display = "none";
+function closeExperienceModal(){
+document.getElementById('experienceModal').classList.remove('active');
 }
 
-}
-
-}
 
 </script>
-<script>
 
-function toggleProfile() {
-
-var menu = document.getElementById("profileMenu");
-
-if (menu.style.display === "block") {
-menu.style.display = "none";
-} else {
-menu.style.display = "block";
-}
-
-}
-
-window.onclick = function(event) {
-
-if (!event.target.matches('.icon')) {
-
-var menu = document.getElementById("profileMenu");
-
-if(menu){
-menu.style.display="none";
-}
-
-}
-
-}
-
-</script>
 </body>
 </html>

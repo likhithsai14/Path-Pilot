@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>My Bookmarks</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'Inter',sans-serif;
+background:linear-gradient(135deg,#eef2ff,#f9fafb);
+padding:40px;
+margin:0;
+}
+
+/* Container */
+
+.container{
+max-width:900px;
+margin:auto;
+}
+
+/* Title Styling */
+
+h2{
+font-family:'Poppins',sans-serif;
+font-weight:700;
+letter-spacing:0.5px;
+margin-bottom:25px;
+position:relative;
+}
+
+h2:after{
+content:'';
+width:70px;
+height:4px;
+background:linear-gradient(90deg,#4f46e5,#6366f1);
+display:block;
+margin-top:8px;
+border-radius:2px;
+}
+
+/* Experience Card */
+
+.experience{
+background:rgba(255,255,255,0.8);
+backdrop-filter:blur(8px);
+padding:24px;
+border-radius:16px;
+margin-top:18px;
+box-shadow:0 8px 25px rgba(0,0,0,0.08);
+transition:all 0.3s ease;
+border:1px solid rgba(255,255,255,0.4);
+cursor:pointer;
+}
+
+.experience:hover{
+transform:translateY(-6px);
+box-shadow:0 18px 35px rgba(0,0,0,0.12);
+}
+
+.experience h3{
+font-family:'Poppins',sans-serif;
+margin-bottom:8px;
+font-size:20px;
+color:#111827;
+}
+
+.experience p{
+font-size:14px;
+color:#4b5563;
+line-height:1.6;
+margin-bottom:6px;
+}
+
+/* Remove bookmark button */
+
+.experience a{
+display:inline-block;
+margin-top:10px;
+padding:6px 12px;
+border-radius:6px;
+background:#fee2e2;
+color:#dc2626;
+font-size:12px;
+font-weight:500;
+text-decoration:none;
+transition:0.25s;
+}
+
+.experience a:hover{
+background:#dc2626;
+color:white;
+}
+
+/* Back button */
+
+.back{
+margin-top:35px;
+display:inline-block;
+color:#4f46e5;
+text-decoration:none;
+font-weight:500;
+transition:0.25s;
+}
+
+.back:hover{
+transform:translateX(-4px);
+text-decoration:underline;
+}
+
+/* Empty state */
+
+p{
+font-size:15px;
+color:#6b7280;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>⭐ My Bookmarked Experiences</h2>
+
+{% if bookmarks %}
+
+{% for exp in bookmarks %}
+
+<div class="experience"
+onclick="window.location.href='/companies?company={{ exp[1] }}'">
+
+<h3>{{ exp[1] }} – {{ exp[2] }}</h3>
+
+{% if verified_ids and exp[0] in verified_ids %}
+<p style="font-size:12px;color:#166534;font-weight:600;">✅ Verified</p>
+{% endif %}
+
+<p><b>Year:</b> {{ exp[3] }}</p>
+
+<p><b>Posted By:</b> {% if exp[10] == "admin" %}Admin{% elif exp[5] == user %}You{% else %}{{ exp[5] }}{% endif %}</p>
+
+<p>{{ exp[4] }}</p>
+
+<a href="/remove_bookmark/{{ exp[0] }}"
+onclick="event.stopPropagation();"
+style="color:red;font-size:12px;text-decoration:none;">
+❌ Remove Bookmark
+</a>
+
+</div>
+
+{% endfor %}
+
+{% else %}
+
+<p>No bookmarks yet.</p>
+
+{% endif %}
+
+<a href="/" class="back">← Back to Home</a>
+
+</div>
+
+</body>
+</html>

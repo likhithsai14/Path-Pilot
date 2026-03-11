@@ -2,116 +2,441 @@
 <html>
 <head>
 <title>PathPilot</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
 
 <style>
-body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-
-    /* Navy → Violet Animated Gradient */
-    background: linear-gradient(-45deg, #001f3f, #0a0f5c, #4b0082, #6a0dad);
-    background-size: 400% 400%;
-    animation: gradientBG 12s ease infinite;
+:root{
+--ink:#102a43;
+--muted:#486581;
+--surface:#f5f8ff;
+--card:#ffffff;
+--accent:#0ea5a4;
+--accent-2:#f59e0b;
+--line:#dbe7f5;
+--hero-start:#0b2545;
+--hero-end:#13315c;
 }
 
-/* Gradient Animation */
-@keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+body{
+margin:0;
+font-family:'Manrope',sans-serif;
+background:linear-gradient(180deg,var(--hero-start) 0%, var(--hero-end) 55%, #102f57 100%);
+color:var(--ink);
+scroll-behavior:smooth;
 }
 
-.content {
-    text-align: center;
-    color: white;
+.reveal{
+opacity:0;
+transform:translateY(18px);
+transition:opacity 0.7s ease, transform 0.7s ease;
 }
 
-/* Title Section */
-.title-section {
-    margin-bottom: 80px; /* Push buttons lower */
+.reveal.visible{
+opacity:1;
+transform:translateY(0);
 }
 
-/* Title Styling */
-.title-section h1 {
-    font-size: 65px;
-    font-weight: 900;
-    transition: all 0.4s ease;
-    display: inline-block;
+.topbar{
+position:absolute;
+top:0;
+left:0;
+right:0;
+z-index:5;
+padding:22px 28px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
-/* Hover → Slight Zoom OUT */
-.title-section h1:hover {
-    transform: scale(0.93);
-    text-shadow: 0 0 25px rgba(255,255,255,0.6);
+.brand{
+font-family:'Space Grotesk',sans-serif;
+font-size:24px;
+font-weight:700;
+letter-spacing:0.5px;
+color:#fff;
+animation:brandPulse 4.5s ease-in-out infinite;
 }
 
-/* Subtitle */
-.subtitle {
-    font-size: 20px;
-    opacity: 0.9;
-    margin-top: 12px;
+.hero{
+min-height:92vh;
+position:relative;
+overflow:hidden;
+padding:110px 20px 56px;
+background:linear-gradient(135deg,var(--hero-start),var(--hero-end));
 }
 
-/* Buttons */
-.btn-role {
-    width: 200px;
-    padding: 12px;
-    font-size: 18px;
-    font-weight: 600;
-    border-radius: 40px;
-    margin: 15px;
-    transition: all 0.3s ease;
+.hero::before{
+content:"";
+position:absolute;
+inset:-20% -10% auto -10%;
+height:220px;
+background:radial-gradient(circle at 20% 50%, rgba(20,184,166,0.24), transparent 45%),
+radial-gradient(circle at 70% 30%, rgba(56,189,248,0.18), transparent 40%);
+animation:driftGlow 9s ease-in-out infinite alternate;
+pointer-events:none;
 }
 
-/* Button Hover */
-.btn-role:hover {
-    transform: translateY(-8px) scale(1.07);
-    box-shadow: 0 15px 25px rgba(0,0,0,0.4);
+.hero-grid{
+max-width:1120px;
+margin:0 auto;
+display:grid;
+grid-template-columns:1fr;
+gap:28px;
+align-items:center;
+position:relative;
+z-index:2;
 }
 
-/* Button Click */
-.btn-role:active {
-    transform: scale(0.95);
+.hero-copy{
+color:#f4f8ff;
+animation:fadeUp 0.9s ease both;
+max-width:860px;
 }
+
+.eyebrow{
+font-size:12px;
+letter-spacing:1.6px;
+text-transform:uppercase;
+font-weight:700;
+color:#8ee7e6;
+}
+
+.hero h1{
+font-family:'Space Grotesk',sans-serif;
+font-size:56px;
+line-height:1.04;
+margin:10px 0 14px;
+max-width:700px;
+}
+
+.subtitle{
+font-size:18px;
+max-width:620px;
+line-height:1.65;
+color:#d7e5f5;
+}
+
+.roles-title{
+margin-top:36px;
+font-weight:700;
+font-size:15px;
+letter-spacing:0.4px;
+color:#d8f3f2;
+}
+
+.role-actions{
+margin-top:14px;
+display:flex;
+gap:12px;
+flex-wrap:wrap;
+}
+
+.btn-role{
+min-width:150px;
+padding:11px 18px;
+border-radius:12px;
+font-weight:700;
+font-size:14px;
+border:none;
+text-decoration:none;
+display:inline-flex;
+justify-content:center;
+align-items:center;
+transition:transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+position:relative;
+overflow:hidden;
+}
+
+.btn-role::after{
+content:"";
+position:absolute;
+top:0;
+left:-130%;
+width:120%;
+height:100%;
+background:linear-gradient(100deg, transparent 20%, rgba(255,255,255,0.55) 50%, transparent 80%);
+transition:left 0.8s ease;
+}
+
+.btn-student{background:#e6fffb;color:#0f172a;}
+.btn-contributor{background:#ccfbf1;color:#0f172a;}
+.btn-admin{background:#fde68a;color:#1f2937;}
+
+.btn-role:hover{
+transform:translateY(-3px);
+box-shadow:0 12px 24px rgba(2,12,27,0.25);
+}
+
+.btn-role:hover::after{left:120%;}
+
+.floating-shape{
+position:absolute;
+border-radius:999px;
+filter:blur(0.2px);
+opacity:0.35;
+z-index:1;
+}
+
+.shape-a{
+width:180px;
+height:180px;
+background:#14b8a6;
+top:130px;
+right:14%;
+animation:floatY 7s ease-in-out infinite;
+}
+
+.shape-b{
+width:110px;
+height:110px;
+background:#f59e0b;
+bottom:80px;
+right:30%;
+animation:floatY 6.5s ease-in-out infinite reverse;
+}
+
+.shape-c{
+width:160px;
+height:160px;
+background:#38bdf8;
+top:58%;
+left:8%;
+animation:floatY 8s ease-in-out infinite;
+}
+
+.section{
+max-width:1120px;
+margin:0 auto;
+padding:62px 20px;
+position:relative;
+z-index:2;
+}
+
+.section-title{
+font-family:'Space Grotesk',sans-serif;
+font-size:34px;
+margin-bottom:12px;
+color:#f4f8ff;
+}
+
+.section-text{
+color:#d7e5f5;
+max-width:760px;
+line-height:1.8;
+}
+
+.feature-grid{
+margin-top:28px;
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:16px;
+}
+
+.feature-card{
+background:var(--card);
+border:1px solid var(--line);
+border-radius:14px;
+padding:18px;
+box-shadow:0 12px 24px rgba(16,42,67,0.06);
+transform:translateY(34px) translateX(-18px);
+opacity:0;
+transition:transform 0.45s ease, box-shadow 0.3s ease, opacity 0.45s ease;
+will-change:transform, opacity;
+}
+
+.feature-card:nth-child(even){
+transform:translateY(34px) translateX(18px);
+}
+
+.section.visible .feature-card{
+opacity:1;
+transform:translateY(0);
+}
+
+.section.visible .feature-card:nth-child(1){transition-delay:0.08s;}
+.section.visible .feature-card:nth-child(2){transition-delay:0.16s;}
+.section.visible .feature-card:nth-child(3){transition-delay:0.24s;}
+.section.visible .feature-card:nth-child(4){transition-delay:0.32s;}
+
+.feature-card h4{
+font-size:17px;
+font-weight:800;
+margin-bottom:8px;
+}
+
+.feature-card p{
+color:var(--muted);
+font-size:14px;
+line-height:1.6;
+margin:0;
+}
+
+.feature-card:hover{
+transform:translateY(-10px) scale(1.05);
+box-shadow:0 18px 30px rgba(16,42,67,0.11);
+}
+
+.feature-card:active{
+transform:translateY(-2px) scale(0.98);
+}
+
+.scroll-cue{
+position:absolute;
+left:50%;
+bottom:22px;
+transform:translateX(-50%);
+width:30px;
+height:48px;
+border:2px solid rgba(255,255,255,0.5);
+border-radius:20px;
+display:flex;
+justify-content:center;
+padding-top:8px;
+z-index:3;
+}
+
+.scroll-cue::after{
+content:"";
+width:4px;
+height:8px;
+border-radius:999px;
+background:#d8f3f2;
+animation:scrollDot 1.8s ease-in-out infinite;
+}
+
+.footer{
+margin-top:20px;
+background:rgba(7,29,55,0.45);
+border-top:1px solid rgba(255,255,255,0.18);
+color:#d7e5f5;
+text-align:center;
+padding:20px;
+font-size:13px;
+}
+
+@keyframes floatY{
+0%{transform:translateY(0px);}
+50%{transform:translateY(-18px);}
+100%{transform:translateY(0px);}
+}
+
+@keyframes scrollDot{
+0%{transform:translateY(0);opacity:1;}
+60%{transform:translateY(12px);opacity:0.35;}
+100%{transform:translateY(0);opacity:1;}
+}
+
+@keyframes driftGlow{
+0%{transform:translateX(-3%) translateY(0);}
+100%{transform:translateX(3%) translateY(6px);}
+}
+
+@keyframes brandPulse{
+0%,100%{opacity:1;}
+50%{opacity:0.84;}
+}
+
+@keyframes fadeUp{
+from{opacity:0;transform:translateY(14px);}
+to{opacity:1;transform:translateY(0);}
+}
+
+@media (max-width:960px){
+.hero-grid{grid-template-columns:1fr;}
+.hero h1{font-size:42px;}
+.feature-grid{grid-template-columns:repeat(2,1fr);}
+.shape-a,.shape-b,.shape-c{opacity:0.25;}
+}
+
+@media (max-width:620px){
+.topbar{padding:18px 16px;}
+.brand{font-size:21px;}
+.hero{padding:88px 16px 44px;}
+.hero h1{font-size:34px;}
+.subtitle{font-size:16px;}
+.btn-role{min-width:100%;}
+.feature-grid{grid-template-columns:1fr;}
+.section{padding:48px 16px;}
+.section-title{font-size:28px;}
+.scroll-cue{display:none;}
+}
+
 </style>
 
 </head>
 
 <body>
 
-<div class="content">
-
-    <div class="title-section">
-        <h1>🚀 PathPilot</h1>
-        <div class="subtitle">
-            Your centralized hub for placement insights, preparation, and success.
-        </div>
-    </div>
-
-    <h3 class="mb-4">Select Your Role</h3>
-
-    <div>
-        <a href="/login/student" class="btn btn-primary btn-role">
-            Student
-        </a>
-
-        <a href="/login/contributor" class="btn btn-info btn-role">
-            Contributor
-        </a>
-
-        <a href="/login/admin" class="btn btn-warning btn-role">
-            Admin
-        </a>
-    </div>
-
+<div class="topbar">
+	<div class="brand">PathPilot</div>
 </div>
+
+<section class="hero">
+	<div class="floating-shape shape-a"></div>
+	<div class="floating-shape shape-b"></div>
+	<div class="floating-shape shape-c"></div>
+
+	<div class="hero-grid">
+		<div class="hero-copy">
+			<div class="eyebrow">Placement Intelligence Platform</div>
+			<h1>Crack Interviews With Shared Real Experiences</h1>
+			<p class="subtitle">
+				PathPilot gives students a structured way to explore genuine interview journeys, company-specific expectations, and role-based preparation insights.
+			</p>
+
+			<div class="roles-title">Choose your role to continue</div>
+			<div class="role-actions">
+				<a href="/login/student" class="btn-role btn-student">Student Login</a>
+				<a href="/login/contributor" class="btn-role btn-contributor">Contributor Login</a>
+			</div>
+		</div>
+	</div>
+	<div class="scroll-cue" aria-hidden="true"></div>
+</section>
+
+<section class="section reveal">
+	<h2 class="section-title">Designed For Serious Preparation</h2>
+	<p class="section-text">
+		From first-round patterns to final interview strategies, PathPilot centralizes practical student and alumni knowledge in one searchable platform. Every shared experience helps juniors move from random preparation to focused execution.
+	</p>
+
+	<div class="feature-grid">
+		<div class="feature-card">
+			<h4>Interview Narratives</h4>
+			<p>Read real candidate experiences with practical context and preparation takeaways.</p>
+		</div>
+		<div class="feature-card">
+			<h4>Company Lens</h4>
+			<p>Explore company-specific trends, rounds, and recurring question patterns.</p>
+		</div>
+		<div class="feature-card">
+			<h4>Contributor Network</h4>
+			<p>Learn from seniors and alumni who share their own interview outcomes openly.</p>
+		</div>
+		<div class="feature-card">
+			<h4>Admin Moderation</h4>
+			<p>Keep content trustworthy through approvals, controls, and quality checks.</p>
+		</div>
+	</div>
+</section>
+
+<div class="footer reveal">© 2026 PathPilot. Build confidence before every interview.</div>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+	entries.forEach((entry) => {
+		if (entry.isIntersecting) {
+			entry.target.classList.add('visible');
+		}
+	});
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+</script>
 
 </body>
 </html>
