@@ -348,6 +348,174 @@ gap:16px;
 margin-top:16px;
 }
 
+.progress-layout{
+display:grid;
+grid-template-columns:1.05fr 0.95fr;
+gap:18px;
+margin-top:16px;
+}
+
+.progress-panel{
+background:var(--surface);
+border:1px solid var(--line);
+border-radius:16px;
+padding:20px;
+box-shadow:0 8px 20px rgba(15,23,42,0.05);
+}
+
+.progress-hero{
+display:grid;
+grid-template-columns:auto 1fr;
+gap:16px;
+align-items:center;
+margin-bottom:18px;
+}
+
+.progress-ring{
+width:132px;
+}
+
+.progress-ring-value{
+text-align:center;
+width:100%;
+}
+
+.progress-ring-value strong{display:block;font-size:26px;line-height:1;}
+.progress-ring-value span{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
+
+.score-progress,
+.metric-progress{
+width:100%;
+appearance:none;
+-webkit-appearance:none;
+height:12px;
+border:none;
+border-radius:999px;
+overflow:hidden;
+background:#e2e8f0;
+}
+
+.score-progress{margin-top:12px;height:14px;}
+
+.score-progress::-webkit-progress-bar,
+.metric-progress::-webkit-progress-bar{
+background:#e2e8f0;
+border-radius:999px;
+}
+
+.score-progress::-webkit-progress-value,
+.metric-progress::-webkit-progress-value{
+background:linear-gradient(90deg,var(--brand),var(--indigo));
+border-radius:999px;
+}
+
+.score-progress::-moz-progress-bar,
+.metric-progress::-moz-progress-bar{
+background:linear-gradient(90deg,var(--brand),var(--indigo));
+border-radius:999px;
+}
+
+.progress-summary h3{font-size:22px;margin-bottom:6px;}
+.progress-summary p{font-size:13px;color:var(--muted);line-height:1.7;}
+
+.focus-box{
+margin-top:14px;
+padding:14px;
+border-radius:12px;
+background:#f8fbff;
+border:1px solid #dbe4f0;
+font-size:13px;
+color:#334155;
+}
+
+.progress-metric{margin-top:16px;}
+.progress-metric-head{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:13px;margin-bottom:7px;}
+.progress-metric-head strong{font-size:14px;color:#0f172a;}
+.progress-track{height:10px;border-radius:999px;background:#e2e8f0;overflow:hidden;}
+.progress-meta{font-size:12px;color:var(--muted);margin-top:6px;}
+
+.prep-form-grid{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:14px;
+margin-top:14px;
+}
+
+.prep-field label{
+display:block;
+font-size:12px;
+font-weight:700;
+color:#334155;
+margin-bottom:6px;
+}
+
+.prep-field input,
+.prep-field textarea{
+width:100%;
+border:1px solid #cbd5e1;
+border-radius:10px;
+padding:10px 12px;
+font-size:13px;
+}
+
+.prep-field textarea{
+resize:vertical;
+min-height:96px;
+}
+
+.prep-field input:focus,
+.prep-field textarea:focus{
+outline:none;
+border-color:#93c5fd;
+box-shadow:0 0 0 2px rgba(59,130,246,0.14);
+}
+
+.prep-field.full{grid-column:1 / -1;}
+
+.prep-tip-list{margin-top:12px;display:flex;flex-direction:column;gap:10px;}
+.prep-tip{padding:12px;border-radius:12px;background:#f8fbff;border:1px solid #e2e8f0;font-size:13px;color:#334155;line-height:1.6;}
+.prep-tip strong{display:block;margin-bottom:4px;color:#0f172a;}
+
+.contact-admin-wrap{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:16px;
+margin-top:16px;
+}
+
+.contact-panel{
+background:var(--surface);
+border:1px solid var(--line);
+border-radius:14px;
+padding:18px;
+box-shadow:0 8px 20px rgba(15,23,42,0.05);
+}
+
+.contact-panel h3{
+font-size:18px;
+margin:0 0 8px;
+}
+
+.contact-help{
+font-size:13px;
+color:var(--muted);
+line-height:1.6;
+margin-bottom:10px;
+}
+
+.contact-list{display:flex;flex-direction:column;gap:10px;}
+
+.contact-item{
+background:#f8fbff;
+border:1px solid #e2e8f0;
+border-radius:10px;
+padding:10px;
+}
+
+.contact-subject{font-size:14px;font-weight:700;color:#0f172a;}
+.contact-text{font-size:13px;color:#334155;line-height:1.6;white-space:pre-line;margin-top:6px;}
+.contact-time{font-size:11px;color:#64748b;margin-top:8px;}
+
 .doubt-card{
 background:var(--surface);
 padding:18px;
@@ -415,6 +583,8 @@ cursor:pointer;
 .sidebar{width:220px;}
 .stats{grid-template-columns:1fr;}
 .doubt-grid{grid-template-columns:1fr;}
+.progress-layout{grid-template-columns:1fr;}
+.contact-admin-wrap{grid-template-columns:1fr;}
 }
 
 @media (max-width:760px){
@@ -423,6 +593,8 @@ body{display:block;}
 .header{position:static;}
 .content{padding:20px 16px;}
 .share-btn{right:16px;bottom:16px;}
+.prep-form-grid{grid-template-columns:1fr;}
+.progress-hero{grid-template-columns:1fr;}
 }
 
 </style>
@@ -567,6 +739,159 @@ body{display:block;}
 
 </div>
 
+{% if role == "student" and preparation_progress %}
+<div class="section" id="prep-progress">
+<h2>Preparation Progress</h2>
+<p style="margin-top:8px;color:#64748b;font-size:13px;">Track what you actually practised, compare it against practical placement targets, and see where to focus next.</p>
+
+<div class="progress-layout">
+<div class="progress-panel">
+<div class="progress-hero">
+<div class="progress-ring">
+<div class="progress-ring-value">
+<strong>{{ preparation_progress.overall_score }}%</strong>
+<span>Readiness</span>
+</div>
+<progress class="score-progress" value="{{ preparation_progress.overall_score }}" max="100"></progress>
+</div>
+
+<div class="progress-summary">
+<h3>{{ preparation_progress.readiness_label }}</h3>
+<p>{{ preparation_progress.readiness_text }}</p>
+<div class="focus-box">
+<strong>Recommended next step:</strong> {{ preparation_progress.focus_recommendation }}
+{% if preparation_progress["values"]["focus_area"] %}
+<br><strong>Your current focus:</strong> {{ preparation_progress["values"]["focus_area"] }}
+{% endif %}
+</div>
+</div>
+</div>
+
+{% for metric in preparation_progress.metrics %}
+<div class="progress-metric">
+<div class="progress-metric-head">
+<strong>{{ metric.label }}</strong>
+<span>{{ metric.current }} / {{ metric.target }} {{ metric.unit }}</span>
+</div>
+<progress class="metric-progress" value="{{ metric.percent }}" max="100"></progress>
+<div class="progress-meta">{{ metric.percent }}% completed against the current target.</div>
+</div>
+{% endfor %}
+</div>
+
+<div class="progress-panel">
+<h3 style="font-size:20px;">Update Practice Log</h3>
+<p style="margin-top:8px;color:#64748b;font-size:13px;line-height:1.7;">Use real counts from your weekly work. This section is most useful when you update it honestly after each practice cycle.</p>
+
+<form method="POST" action="/preparation-progress/update">
+<div class="prep-form-grid">
+<div class="prep-field">
+<label>DSA Questions Solved</label>
+<input type="number" min="0" name="dsa_questions" value="{{ preparation_progress['values']['dsa_questions'] }}" required>
+</div>
+
+<div class="prep-field">
+<label>Aptitude Sets Completed</label>
+<input type="number" min="0" name="aptitude_sets" value="{{ preparation_progress['values']['aptitude_sets'] }}" required>
+</div>
+
+<div class="prep-field">
+<label>Mock Interviews Taken</label>
+<input type="number" min="0" name="mock_interviews" value="{{ preparation_progress['values']['mock_interviews'] }}" required>
+</div>
+
+<div class="prep-field">
+<label>Core Subject Revisions</label>
+<input type="number" min="0" name="core_subject_revisions" value="{{ preparation_progress['values']['core_subject_revisions'] }}" required>
+</div>
+
+<div class="prep-field">
+<label>Company Experiences Reviewed</label>
+<input type="number" min="0" name="company_rounds_reviewed" value="{{ preparation_progress['values']['company_rounds_reviewed'] }}" required>
+</div>
+
+<div class="prep-field">
+<label>Weekly Target Hours</label>
+<input type="number" min="1" name="weekly_hours_target" value="{{ preparation_progress['values']['weekly_hours_target'] }}" required>
+</div>
+
+<div class="prep-field">
+<label>Hours Practised This Week</label>
+<input type="number" min="0" name="weekly_hours_completed" value="{{ preparation_progress['values']['weekly_hours_completed'] }}" required>
+</div>
+
+<div class="prep-field full">
+<label>Current Focus Area</label>
+<textarea name="focus_area" maxlength="250" placeholder="Example: Dynamic programming, CN revision, or company-specific OA practice">{{ preparation_progress['values']['focus_area'] }}</textarea>
+</div>
+</div>
+
+<button class="btn-doubt" type="submit">Save Progress</button>
+</form>
+
+<div class="prep-tip-list">
+<div class="prep-tip"><strong>Why this is useful</strong>Keep DSA, aptitude, mocks, revision, and company research balanced. Placements usually fail when one of these is ignored for too long.</div>
+<div class="prep-tip"><strong>Good weekly rhythm</strong>Try to log at least one mock, a few aptitude sets, and steady DSA every week instead of doing everything only before interviews.</div>
+<div class="prep-tip"><strong>Use the weakest metric</strong>The lowest bar is the fastest way to improve your overall readiness score.</div>
+</div>
+</div>
+</div>
+</div>
+{% endif %}
+
+{% if role == "contributor" %}
+<div class="section" id="contact-admin">
+<h2>Contact Admin</h2>
+<p style="margin-top:8px;color:#64748b;font-size:13px;">Use this for account issues, approval clarifications, or platform-level support requests.</p>
+
+<div class="contact-admin-wrap">
+<div class="contact-panel">
+<h3>Send Message</h3>
+<p class="contact-help">Write clear details so admin can help faster.</p>
+<form method="POST" action="/contact-admin">
+<div class="prep-field">
+<label>Subject</label>
+<input type="text" name="subject" maxlength="120" placeholder="Example: Need clarification on contributor privileges" required>
+</div>
+<div class="prep-field" style="margin-top:12px;">
+<label>Message</label>
+<textarea name="message" maxlength="1000" placeholder="Explain your issue, include what happened and what help you need." required></textarea>
+</div>
+<button class="btn-doubt" type="submit">Send to Admin</button>
+</form>
+</div>
+
+<div class="contact-panel">
+<h3>Recent Messages</h3>
+<p class="contact-help">Your latest requests sent to admin.</p>
+<div class="contact-list">
+{% if contributor_contact_messages and contributor_contact_messages|length > 0 %}
+{% for msg in contributor_contact_messages %}
+<div class="contact-item">
+<div class="contact-subject">{{ msg[1] }}</div>
+<div class="contact-text">{{ msg[2] }}</div>
+<div class="contact-time">Sent on {{ msg[3] }}</div>
+{% if msg[4] %}
+<div class="contact-text" style="margin-top:10px;background:#ecfeff;border:1px solid #c7f9f4;border-radius:8px;padding:8px 10px;">
+<strong>Admin Reply:</strong> {{ msg[4] }}
+{% if msg[5] %}
+<div class="contact-time" style="margin-top:6px;">Replied on {{ msg[5] }}</div>
+{% endif %}
+</div>
+{% endif %}
+</div>
+{% endfor %}
+{% else %}
+<div class="contact-item">
+<div class="contact-text">No messages sent yet.</div>
+</div>
+{% endif %}
+</div>
+</div>
+</div>
+</div>
+{% endif %}
+
 {% if page == "dashboard" and role in ["student", "contributor", "admin"] %}
 <div class="section">
 {% if role == "student" %}
@@ -676,7 +1001,7 @@ data-year="{{ exp[3] }}"
 data-posted="{% if exp[10] == 'admin' %}Admin{% elif exp[5] == user %}You{% else %}{{ exp[5] }}{% endif %}"
 data-userrole="{{ exp[10] }}"
 data-designation="{{ exp[11] }}"
-onclick="openExperienceModal(this)">
+onclick="openExperiencePage('{{ exp[0] }}')">
 
 <h4>{{ exp[1] }} – {{ exp[2] }}
 
@@ -747,44 +1072,6 @@ style="font-size:12px;color:#4f46e5;text-decoration:none;">
 <a href="/share" class="share-btn">+ Share Experience</a>
 {% endif %}
 
-<div class="modal-overlay" id="experienceModal">
-
-<div class="modal-content">
-
-<div class="modal-header">
-<h2 class="modal-title" id="modalCompany"></h2>
-<button class="modal-close" onclick="closeExperienceModal()">✕</button>
-</div>
-
-<div class="detail-item">
-<div class="detail-label">Job Role</div>
-<div class="detail-value" id="modalRole"></div>
-</div>
-
-<div class="detail-item">
-<div class="detail-label">Year</div>
-<div class="detail-value" id="modalYear"></div>
-</div>
-
-<div class="detail-item">
-<div class="detail-label">Posted By</div>
-<div class="detail-value" id="modalPostedBy"></div>
-</div>
-
-<div class="detail-item">
-<div class="detail-label">Posted As</div>
-<div class="detail-value" id="modalUserRole"></div>
-</div>
-
-<div class="detail-item">
-<div class="detail-label">Experience Details</div>
-<div class="detail-value" id="modalDescription"></div>
-</div>
-
-</div>
-
-</div>
-
 <script>
 
 function toggleProfile(){
@@ -813,42 +1100,8 @@ if(!el){return;}
 el.classList.toggle('active');
 }
 
-function openExperienceModal(card){
-
-let company=card.dataset.company;
-let role=card.dataset.role;
-let year=card.dataset.year;
-let description=card.querySelector('.experience-description')?.textContent || '';
-let postedBy=card.dataset.posted;
-let userRole=card.dataset.userrole;
-let designation=card.dataset.designation;
-let expId=card.dataset.expid;
-
-document.getElementById('modalCompany').textContent=company;
-document.getElementById('modalRole').textContent=role;
-document.getElementById('modalYear').textContent=year;
-document.getElementById('modalDescription').textContent=description;
-document.getElementById('modalPostedBy').textContent=postedBy;
-
-let roleDisplay='';
-
-if(userRole==='admin'){roleDisplay='👨‍💼 Admin';}
-else if(userRole==='contributor'){
-if(designation==='Final Year'){roleDisplay='🎓 Senior';}
-else if(designation==='Alumni'){roleDisplay='🎯 Alumni';}
-}
-
-document.getElementById('modalUserRole').textContent=roleDisplay;
-document.getElementById('experienceModal').classList.add('active');
-
-if(expId){
-fetch('/experience/view/' + expId, {method:'POST'}).catch(()=>{});
-}
-
-}
-
-function closeExperienceModal(){
-document.getElementById('experienceModal').classList.remove('active');
+function openExperiencePage(expId){
+window.location.href='/experience/' + expId;
 }
 
 

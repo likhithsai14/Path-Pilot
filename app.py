@@ -76,6 +76,35 @@ def is_admin_authenticated():
     return session.get("admin_logged_in") is True
 
 
+def get_active_viewer_username():
+    if "user" in session:
+        return session["user"]
+    if is_admin_authenticated():
+        return session.get("admin_user", "Admin")
+    return None
+
+
+def record_experience_view(cur, viewer_name, exp_id):
+    cur.execute("UPDATE experiences SET views = COALESCE(views, 0) + 1 WHERE id=?", (exp_id,))
+    cur.execute(
+        """
+        UPDATE experience_views
+        SET last_viewed=CURRENT_TIMESTAMP
+        WHERE username=? AND experience_id=?
+        """,
+        (viewer_name, exp_id)
+    )
+
+    if cur.rowcount == 0:
+        cur.execute(
+            """
+            INSERT INTO experience_views(username,experience_id,last_viewed)
+            VALUES(?,?,CURRENT_TIMESTAMP)
+            """,
+            (viewer_name, exp_id)
+        )
+
+
 def get_doubt_data(cur, limit=20):
     cur.execute(
         """
@@ -108,6 +137,100 @@ def get_doubt_data(cur, limit=20):
             answers_by_doubt.setdefault(ans[1], []).append(ans)
 
     return doubts, answers_by_doubt
+
+
+def get_preparation_progress(cur, username):
+    cur.execute(
+        """
+        SELECT dsa_questions, aptitude_sets, mock_interviews,
+               core_subject_revisions, company_rounds_reviewed,
+               weekly_hours_target, weekly_hours_completed,
+               focus_area, updated_at
+        FROM preparation_progress
+        WHERE username=?
+        """,
+        (username,)
+    )
+    row = cur.fetchone()
+
+    progress = {
+        "dsa_questions": 0,
+        "aptitude_sets": 0,
+        "mock_interviews": 0,
+        "core_subject_revisions": 0,
+        "company_rounds_reviewed": 0,
+        "weekly_hours_target": 10,
+        "weekly_hours_completed": 0,
+        "focus_area": "",
+        "updated_at": None,
+    }
+
+    if row:
+        progress.update({
+            "dsa_questions": row[0] or 0,
+            "aptitude_sets": row[1] or 0,
+            "mock_interviews": row[2] or 0,
+            "core_subject_revisions": row[3] or 0,
+            "company_rounds_reviewed": row[4] or 0,
+            "weekly_hours_target": row[5] or 10,
+            "weekly_hours_completed": row[6] or 0,
+            "focus_area": row[7] or "",
+            "updated_at": row[8],
+        })
+
+    metric_specs = [
+        ("dsa_questions", "DSA Questions Solved", 120, "questions"),
+        ("aptitude_sets", "Aptitude Sets Completed", 20, "sets"),
+        ("mock_interviews", "Mock Interviews Taken", 8, "mocks"),
+        ("core_subject_revisions", "Core Subject Revisions", 12, "topics"),
+        ("company_rounds_reviewed", "Company Experiences Reviewed", 30, "reviews"),
+        ("weekly_hours_completed", "Weekly Practice Hours", max(progress["weekly_hours_target"], 1), "hours"),
+    ]
+
+    metrics = []
+    score_total = 0
+    lowest_metric = None
+
+    for key, label, target, unit in metric_specs:
+        current = progress[key] or 0
+        percent = min(int((current / target) * 100), 100) if target > 0 else 0
+        metric = {
+            "key": key,
+            "label": label,
+            "current": current,
+            "target": target,
+            "unit": unit,
+            "percent": percent,
+        }
+        metrics.append(metric)
+        score_total += percent
+        if lowest_metric is None or percent < lowest_metric["percent"]:
+            lowest_metric = metric
+
+    overall_score = round(score_total / len(metrics)) if metrics else 0
+
+    if overall_score >= 75:
+        readiness_label = "Interview Ready"
+        readiness_text = "Your preparation is balanced. Keep doing mocks and targeted company revision before applying."
+    elif overall_score >= 45:
+        readiness_label = "Building Momentum"
+        readiness_text = "You have a working base. Push the weakest area for the next 7 days to lift your readiness quickly."
+    else:
+        readiness_label = "Foundation Stage"
+        readiness_text = "Your preparation needs more consistency. Build a repeatable weekly rhythm before increasing difficulty."
+
+    focus_recommendation = "Maintain balanced practice across all tracks."
+    if lowest_metric:
+        focus_recommendation = f"Next priority: improve {lowest_metric['label'].lower()} toward {lowest_metric['target']} {lowest_metric['unit']}."
+
+    return {
+        "values": progress,
+        "metrics": metrics,
+        "overall_score": overall_score,
+        "readiness_label": readiness_label,
+        "readiness_text": readiness_text,
+        "focus_recommendation": focus_recommendation,
+    }
 
 
 # ---------------- DATABASE ---------------- #
@@ -236,6 +359,35 @@ CREATE TABLE IF NOT EXISTS companies(
     )
     """)
 
+    # STUDENT PREPARATION PROGRESS
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS preparation_progress(
+        username TEXT PRIMARY KEY,
+        dsa_questions INTEGER DEFAULT 0,
+        aptitude_sets INTEGER DEFAULT 0,
+        mock_interviews INTEGER DEFAULT 0,
+        core_subject_revisions INTEGER DEFAULT 0,
+        company_rounds_reviewed INTEGER DEFAULT 0,
+        weekly_hours_target INTEGER DEFAULT 10,
+        weekly_hours_completed INTEGER DEFAULT 0,
+        focus_area TEXT,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    # CONTRIBUTOR -> ADMIN CONTACT MESSAGES
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS contributor_admin_contacts(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        contributor_username TEXT NOT NULL,
+        subject TEXT NOT NULL,
+        message TEXT NOT NULL,
+        admin_reply TEXT,
+        replied_at TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
     # Add columns if they don't exist (for migration)
     for col_def in [
         "interview_date TEXT",
@@ -256,6 +408,16 @@ CREATE TABLE IF NOT EXISTS companies(
     ]:
         try:
             cur.execute(f"ALTER TABLE users ADD COLUMN {col_def}")
+        except:
+            pass
+
+    # Add contributor contact columns if they don't exist
+    for col_def in [
+        "admin_reply TEXT",
+        "replied_at TEXT"
+    ]:
+        try:
+            cur.execute(f"ALTER TABLE contributor_admin_contacts ADD COLUMN {col_def}")
         except:
             pass
 
@@ -538,6 +700,8 @@ def dashboard():
     notification_count = 0
     doubts = []
     doubt_answers = {}
+    preparation_progress = None
+    contributor_contact_messages = []
 
     # total reviews
     cur.execute("SELECT COUNT(*) FROM experiences")
@@ -585,6 +749,22 @@ def dashboard():
     if session["role"] in ["student", "contributor", "admin"]:
         doubts, doubt_answers = get_doubt_data(cur, limit=20)
 
+    if session["role"] == "student":
+        preparation_progress = get_preparation_progress(cur, session["user"])
+
+    if session["role"] == "contributor":
+        cur.execute(
+            """
+            SELECT id, subject, message, created_at, admin_reply, replied_at
+            FROM contributor_admin_contacts
+            WHERE contributor_username=?
+            ORDER BY id DESC
+            LIMIT 5
+            """,
+            (session["user"],)
+        )
+        contributor_contact_messages = cur.fetchall()
+
     conn.close()
 
     return render_template(
@@ -604,8 +784,105 @@ def dashboard():
         notification_count=notification_count,
         doubts=doubts,
         doubt_answers=doubt_answers,
+        preparation_progress=preparation_progress,
+        contributor_contact_messages=contributor_contact_messages,
         page="dashboard"
     )
+
+
+@app.route("/preparation-progress/update", methods=["POST"])
+def update_preparation_progress():
+
+    if session.get("role") != "student":
+        return redirect("/dashboard")
+
+    def parse_non_negative(name, default=0):
+        raw_value = request.form.get(name, str(default)).strip()
+        try:
+            return max(int(raw_value), 0)
+        except ValueError:
+            return default
+
+    dsa_questions = parse_non_negative("dsa_questions")
+    aptitude_sets = parse_non_negative("aptitude_sets")
+    mock_interviews = parse_non_negative("mock_interviews")
+    core_subject_revisions = parse_non_negative("core_subject_revisions")
+    company_rounds_reviewed = parse_non_negative("company_rounds_reviewed")
+    weekly_hours_target = max(parse_non_negative("weekly_hours_target", 10), 1)
+    weekly_hours_completed = parse_non_negative("weekly_hours_completed")
+    focus_area = request.form.get("focus_area", "").strip()
+
+    conn = sqlite3.connect("database.db")
+    cur = conn.cursor()
+    cur.execute(
+        """
+        INSERT INTO preparation_progress(
+            username, dsa_questions, aptitude_sets, mock_interviews,
+            core_subject_revisions, company_rounds_reviewed,
+            weekly_hours_target, weekly_hours_completed, focus_area, updated_at
+        )
+        VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)
+        ON CONFLICT(username) DO UPDATE SET
+            dsa_questions=excluded.dsa_questions,
+            aptitude_sets=excluded.aptitude_sets,
+            mock_interviews=excluded.mock_interviews,
+            core_subject_revisions=excluded.core_subject_revisions,
+            company_rounds_reviewed=excluded.company_rounds_reviewed,
+            weekly_hours_target=excluded.weekly_hours_target,
+            weekly_hours_completed=excluded.weekly_hours_completed,
+            focus_area=excluded.focus_area,
+            updated_at=CURRENT_TIMESTAMP
+        """,
+        (
+            session["user"],
+            dsa_questions,
+            aptitude_sets,
+            mock_interviews,
+            core_subject_revisions,
+            company_rounds_reviewed,
+            weekly_hours_target,
+            weekly_hours_completed,
+            focus_area,
+        )
+    )
+    conn.commit()
+    conn.close()
+
+    flash("Preparation progress updated.", "success")
+    return redirect("/dashboard#prep-progress")
+
+
+@app.route("/contact-admin", methods=["POST"])
+def contact_admin():
+
+    if session.get("role") != "contributor":
+        return redirect("/dashboard")
+
+    subject = request.form.get("subject", "").strip()
+    message = request.form.get("message", "").strip()
+
+    if not subject or not message:
+        flash("Subject and message are required.", "error")
+        return redirect("/dashboard#contact-admin")
+
+    if len(subject) > 120 or len(message) > 1000:
+        flash("Keep subject under 120 chars and message under 1000 chars.", "error")
+        return redirect("/dashboard#contact-admin")
+
+    conn = sqlite3.connect("database.db")
+    cur = conn.cursor()
+    cur.execute(
+        """
+        INSERT INTO contributor_admin_contacts(contributor_username, subject, message)
+        VALUES(?,?,?)
+        """,
+        (session["user"], subject, message)
+    )
+    conn.commit()
+    conn.close()
+
+    flash("Message sent to admin successfully.", "success")
+    return redirect("/dashboard#contact-admin")
 
 
 @app.route("/admin/home")
@@ -976,36 +1253,103 @@ def companies():
 @app.route("/experience/view/<int:exp_id>", methods=["POST"])
 def track_experience_view(exp_id):
 
-    if "role" not in session:
+    viewer_name = get_active_viewer_username()
+
+    if not viewer_name:
         return {"status": "unauthorized"}, 401
 
     conn = sqlite3.connect("database.db")
     cur = conn.cursor()
 
-    cur.execute("UPDATE experiences SET views = COALESCE(views, 0) + 1 WHERE id=?", (exp_id,))
-    # SQLite-compatible upsert (works across older versions too)
-    cur.execute(
-        """
-        UPDATE experience_views
-        SET last_viewed=CURRENT_TIMESTAMP
-        WHERE username=? AND experience_id=?
-        """,
-        (session["user"], exp_id)
-    )
-
-    if cur.rowcount == 0:
-        cur.execute(
-            """
-            INSERT INTO experience_views(username,experience_id,last_viewed)
-            VALUES(?,?,CURRENT_TIMESTAMP)
-            """,
-            (session["user"], exp_id)
-        )
+    record_experience_view(cur, viewer_name, exp_id)
 
     conn.commit()
     conn.close()
 
     return {"status": "ok"}
+
+
+@app.route("/experience/<int:exp_id>")
+def experience_detail(exp_id):
+
+    viewer_name = get_active_viewer_username()
+
+    if not viewer_name:
+        return redirect("/")
+
+    home_url = url_for("dashboard") if "role" in session else url_for("admin_home")
+
+    conn = sqlite3.connect("database.db")
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        SELECT e.id, e.company, e.job_role, e.year, e.description, e.posted_by,
+               e.interview_date, e.outcome, e.package_offered, e.views,
+               u.role, u.designation
+        FROM experiences e
+        LEFT JOIN users u ON e.posted_by = u.username
+        WHERE e.id=?
+        """,
+        (exp_id,)
+    )
+    experience = cur.fetchone()
+
+    if not experience:
+        conn.close()
+        flash("Experience not found.", "error")
+        return redirect(home_url)
+
+    record_experience_view(cur, viewer_name, exp_id)
+
+    cur.execute(
+        """
+        SELECT file_path, original_name, uploaded_at
+        FROM experience_documents
+        WHERE experience_id=?
+        ORDER BY id DESC
+        """,
+        (exp_id,)
+    )
+    documents = cur.fetchall()
+
+    is_verified = exp_id in get_verified_ids(cur)
+    can_bookmark = "role" in session and session.get("role") != "admin"
+    is_bookmarked = False
+
+    if can_bookmark:
+        cur.execute(
+            "SELECT 1 FROM bookmarks WHERE username=? AND experience_id=?",
+            (session["user"], exp_id)
+        )
+        is_bookmarked = cur.fetchone() is not None
+
+    conn.commit()
+    conn.close()
+
+    posted_by_label = "Admin" if experience[10] == "admin" else ("You" if experience[5] == viewer_name else experience[5])
+    view_count = (experience[9] or 0) + 1
+
+    if experience[10] == "admin":
+        role_display = "Admin"
+    elif experience[10] == "contributor":
+        role_display = experience[11] if experience[11] else "Contributor"
+    else:
+        role_display = "Student"
+
+    return render_template(
+        "experience_detail.html",
+        experience=experience,
+        posted_by_label=posted_by_label,
+        role_display=role_display,
+        is_verified=is_verified,
+        documents=documents,
+        can_bookmark=can_bookmark,
+        is_bookmarked=is_bookmarked,
+        home_url=home_url,
+        company_url=url_for("company_page", name=experience[1]) if "role" in session else None,
+        view_count=view_count
+    )
 
 @app.route("/company/<name>")
 def company_page(name):
@@ -1159,6 +1503,25 @@ def admin_controls():
     )
     recent_notifications = cur.fetchall()
 
+    cur.execute(
+        """
+        SELECT id, contributor_username, subject, message, admin_reply, replied_at, created_at
+        FROM contributor_admin_contacts
+        ORDER BY id DESC
+        LIMIT 30
+        """
+    )
+    contributor_contacts = cur.fetchall()
+
+    cur.execute(
+        """
+        SELECT name, date
+        FROM companies
+        ORDER BY date ASC, name ASC
+        """
+    )
+    companies = cur.fetchall()
+
     conn.close()
 
     return render_template(
@@ -1167,7 +1530,9 @@ def admin_controls():
         student_users=student_users,
         contributor_users=contributor_users,
         verified_ids=verified_ids,
-        recent_notifications=recent_notifications
+        recent_notifications=recent_notifications,
+        contributor_contacts=contributor_contacts,
+        companies=companies
     )
 
 
@@ -1202,6 +1567,88 @@ def admin_send_notification():
     conn.close()
 
     flash("Notification sent successfully.", "success")
+    return redirect("/admin/controls")
+
+
+@app.route("/admin/contact/reply/<int:contact_id>", methods=["POST"])
+def admin_reply_contact(contact_id):
+
+    if not is_admin_authenticated():
+        return redirect("/login/admin")
+
+    reply_text = request.form.get("reply", "").strip()
+    if not reply_text:
+        flash("Reply cannot be empty.", "error")
+        return redirect("/admin/controls")
+
+    if len(reply_text) > 1000:
+        flash("Reply must be under 1000 characters.", "error")
+        return redirect("/admin/controls")
+
+    conn = sqlite3.connect("database.db")
+    cur = conn.cursor()
+    cur.execute(
+        """
+        UPDATE contributor_admin_contacts
+        SET admin_reply=?, replied_at=CURRENT_TIMESTAMP
+        WHERE id=?
+        """,
+        (reply_text, contact_id)
+    )
+    conn.commit()
+    conn.close()
+
+    flash("Reply sent to contributor message.", "success")
+    return redirect("/admin/controls")
+
+
+@app.route("/admin/contact/edit/<int:contact_id>", methods=["POST"])
+def admin_edit_contact(contact_id):
+
+    if not is_admin_authenticated():
+        return redirect("/login/admin")
+
+    subject = request.form.get("subject", "").strip()
+    message = request.form.get("message", "").strip()
+
+    if not subject or not message:
+        flash("Subject and message are required.", "error")
+        return redirect("/admin/controls")
+
+    if len(subject) > 120 or len(message) > 1000:
+        flash("Keep subject under 120 chars and message under 1000 chars.", "error")
+        return redirect("/admin/controls")
+
+    conn = sqlite3.connect("database.db")
+    cur = conn.cursor()
+    cur.execute(
+        """
+        UPDATE contributor_admin_contacts
+        SET subject=?, message=?
+        WHERE id=?
+        """,
+        (subject, message, contact_id)
+    )
+    conn.commit()
+    conn.close()
+
+    flash("Contributor contact message updated.", "success")
+    return redirect("/admin/controls")
+
+
+@app.route("/admin/contact/delete/<int:contact_id>", methods=["POST"])
+def admin_delete_contact(contact_id):
+
+    if not is_admin_authenticated():
+        return redirect("/login/admin")
+
+    conn = sqlite3.connect("database.db")
+    cur = conn.cursor()
+    cur.execute("DELETE FROM contributor_admin_contacts WHERE id=?", (contact_id,))
+    conn.commit()
+    conn.close()
+
+    flash("Contributor message deleted.", "success")
     return redirect("/admin/controls")
 
 
@@ -1280,6 +1727,23 @@ def admin_verify_experience(exp_id):
         """,
         (exp_id, session.get("admin_user", "Admin"))
     )
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/admin/controls")
+
+
+@app.route("/admin/unverify_experience/<int:exp_id>", methods=["POST"])
+def admin_unverify_experience(exp_id):
+
+    if not is_admin_authenticated():
+        return redirect("/login/admin")
+
+    conn = sqlite3.connect("database.db")
+    cur = conn.cursor()
+
+    cur.execute("DELETE FROM experience_verifications WHERE experience_id=?", (exp_id,))
 
     conn.commit()
     conn.close()

@@ -369,7 +369,7 @@ View {{ company[0] }} Experiences →
 
 {% for exp in experiences %}
 
-<div class="experience-card" onclick="trackExperienceAndOpen('{{ exp[0] }}','{{ exp[1] }}')">
+<div class="experience-card" onclick="window.location.href='/experience/{{ exp[0] }}'">
 
 <h5>{{ exp[1] }} – {{ exp[2] }}</h5>
 
@@ -404,15 +404,6 @@ View {{ company[0] }} Experiences →
 <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
 </center>
 <script>
-
-function trackExperienceAndOpen(expId, companyName){
-fetch('/experience/view/' + expId, {method:'POST'})
-	.catch(()=>{})
-	.finally(()=>{
-		window.location.href = '/company/' + companyName;
-	});
-}
-
 function toggleMenu(el){
 
 let menu = el.nextElementSibling;

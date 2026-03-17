@@ -141,6 +141,7 @@ transition:all 0.3s ease;
 border:1px solid var(--line);
 position:relative;
 overflow:hidden;
+cursor:pointer;
 }
 
 .exp-card::before{
@@ -195,6 +196,8 @@ font-weight:600;
 border:none;
 cursor:pointer;
 transition:all 0.2s ease;
+display:inline-block;
+text-decoration:none;
 }
 
 .tag:hover{
@@ -427,7 +430,7 @@ required>
 <div class="results-container">
 {% for exp in results %}
 
-<div class="exp-card">
+<div class="exp-card" onclick="window.location.href='/experience/{{ exp[0] }}'">
 
 <div class="exp-header">
 <div style="flex:1;">
@@ -451,8 +454,8 @@ required>
 {% set posted_by_label = 'Admin' if exp[10] == 'admin' else ('You' if exp[5] == user else exp[5]) %}
 
 <div class="tags">
-<button class="tag" onclick="openModal('{{ exp[1] }}', '{{ exp[2] }}', '{{ exp[3] }}', '{{ exp[4] }}', '{{ posted_by_label }}', '{{ exp[10] }}', '{{ exp[11] }}')">Interview</button>
-<button class="tag" onclick="openModal('{{ exp[1] }}', '{{ exp[2] }}', '{{ exp[3] }}', '{{ exp[4] }}', '{{ posted_by_label }}', '{{ exp[10] }}', '{{ exp[11] }}')">Experience</button>
+<a class="tag" href="/experience/{{ exp[0] }}">Interview</a>
+<a class="tag" href="/experience/{{ exp[0] }}">Experience</a>
 </div>
 </div>
 
@@ -469,7 +472,7 @@ required>
 
 <div class="meta-item">
 <span class="meta-label">🏢 Company</span>
-<a href="{{ url_for('company_page', name=exp[0]) }}" class="company-link">{{ exp[0] }}</a>
+<a href="{{ url_for('company_page', name=exp[1]) }}" class="company-link" onclick="event.stopPropagation();">{{ exp[1] }}</a>
 </div>
 </div>
 
@@ -490,77 +493,6 @@ required>
 </div>
 
 {% endif %}
-
-<!-- Modal -->
-<div class="modal-overlay" id="experienceModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2 class="modal-title" id="modalTitle"></h2>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    
-    <div class="modal-details">
-      <div class="detail-item">
-        <div class="detail-label">Job Role</div>
-        <div class="detail-value" id="modalRole"></div>
-      </div>
-      
-      <div class="detail-item">
-        <div class="detail-label">Year</div>
-        <div class="detail-value" id="modalYear"></div>
-      </div>
-      
-      <div class="detail-item">
-        <div class="detail-label">Posted By</div>
-        <div class="detail-value" id="modalPostedBy"></div>
-      </div>
-
-      <div class="detail-item">
-        <div class="detail-label">Posted As</div>
-        <div class="detail-value" id="modalUserRole"></div>
-      </div>
-      
-      <div class="detail-item">
-        <div class="detail-label">Experience Details</div>
-        <div class="detail-value" id="modalDescription"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-function openModal(company, role, year, description, postedBy, userRole, designation){
-  document.getElementById('modalTitle').textContent = company;
-  document.getElementById('modalRole').textContent = role;
-  document.getElementById('modalYear').textContent = year;
-  document.getElementById('modalPostedBy').textContent = postedBy;
-  document.getElementById('modalDescription').textContent = description;
-  
-  let roleDisplay = '';
-  if(userRole === 'admin'){
-    roleDisplay = '👨‍💼 Admin';
-  } else if(userRole === 'contributor'){
-    if(designation === 'Final Year'){
-      roleDisplay = '🎓 Senior';
-    } else if(designation === 'Alumni'){
-      roleDisplay = '🎯 Alumni';
-    }
-  }
-  document.getElementById('modalUserRole').textContent = roleDisplay;
-  document.getElementById('experienceModal').classList.add('active');
-}
-
-function closeModal(){
-  document.getElementById('experienceModal').classList.remove('active');
-}
-
-// Close modal when clicking outside
-document.getElementById('experienceModal').addEventListener('click', function(e){
-  if(e.target === this){
-    closeModal();
-  }
-});
-</script>
 
 </body>
 </html>

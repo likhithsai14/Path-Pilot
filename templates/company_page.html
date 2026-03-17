@@ -53,6 +53,7 @@ border:1px solid #e5e7eb;
 transition:all 0.3s ease;
 position:relative;
 overflow:hidden;
+cursor:pointer;
 }
 
 .exp-card::before{
@@ -167,7 +168,7 @@ color:#22543d;
 
 {% for exp in experiences %}
 
-<div class="exp-card">
+<div class="exp-card" onclick="window.location.href='/experience/{{ exp[0] }}'">
 
 <h5>{{ exp[2] }}
 {% if verified_ids and exp[0] in verified_ids %}

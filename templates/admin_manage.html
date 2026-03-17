@@ -194,6 +194,65 @@ body{padding:16px;}
     </div>
 
     <div class="section">
+        <h3>Contributor Contact Messages</h3>
+        <div class="meta">Latest support or clarification requests sent by contributors.</div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Contributor</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                        <th>Admin Reply</th>
+                        <th>Sent At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if contributor_contacts and contributor_contacts|length > 0 %}
+                        {% for msg in contributor_contacts %}
+                        <tr>
+                            <td>{{ msg[0] }}</td>
+                            <td>{{ msg[1] }}</td>
+                            <td>{{ msg[2] }}</td>
+                            <td style="white-space:pre-line;">{{ msg[3] }}</td>
+                            <td style="white-space:pre-line;">
+                                {% if msg[4] %}
+                                {{ msg[4] }}
+                                <div class="feed-meta" style="margin-top:6px;">Replied at {{ msg[5] }}</div>
+                                {% else %}
+                                <span class="text-muted">No reply yet</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ msg[6] }}</td>
+                            <td style="min-width:220px;max-width:240px;">
+                                <form method="POST" action="/admin/contact/edit/{{ msg[0] }}" class="mb-3">
+                                    <input type="text" name="subject" class="form-control form-control-sm mb-2" maxlength="120" value="{{ msg[2] }}" required>
+                                    <textarea name="message" class="form-control form-control-sm" rows="2" maxlength="1000" required>{{ msg[3] }}</textarea>
+                                    <button class="btn btn-sm btn-outline-primary mt-2" type="submit">Edit Message</button>
+                                </form>
+                                <form method="POST" action="/admin/contact/reply/{{ msg[0] }}" class="mb-2">
+                                    <textarea name="reply" class="form-control form-control-sm" rows="1" maxlength="1000" placeholder="Write reply to contributor...">{{ msg[4] if msg[4] else '' }}</textarea>
+                                    <button class="btn btn-sm btn-brand mt-2" type="submit">Save Reply</button>
+                                </form>
+                                <form method="POST" action="/admin/contact/delete/{{ msg[0] }}" onsubmit="return confirm('Delete this contributor message?');">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No contributor messages yet.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
         <h3>Students</h3>
         <div class="meta">All registered student accounts</div>
         <div class="table-responsive">
@@ -324,6 +383,9 @@ body{padding:16px;}
                         <td>
                             {% if verified_ids and exp[0] in verified_ids %}
                             <span class="badge-verified">Verified</span>
+                            <form method="POST" action="/admin/unverify_experience/{{ exp[0] }}" style="display:inline-block;margin-left:6px;">
+                                <button class="btn btn-sm btn-outline-warning" type="submit">Remove Verified</button>
+                            </form>
                             {% else %}
                             <form method="POST" action="/admin/verify_experience/{{ exp[0] }}" style="display:inline-block;margin-right:6px;">
                                 <button class="btn btn-sm btn-brand" type="submit">Verify</button>
@@ -336,6 +398,45 @@ body{padding:16px;}
                         </td>
                     </tr>
                     {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>Manage Companies</h3>
+        <div class="meta">Add, edit, or delete company drives directly from admin controls.</div>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <a href="/admin/add_company" class="btn btn-brand">Add Company</a>
+            <a href="/companies" class="btn btn-secondary">View Companies</a>
+        </div>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Drive Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if companies and companies|length > 0 %}
+                        {% for company in companies %}
+                        <tr>
+                            <td>{{ company[0] }}</td>
+                            <td>{{ company[1] if company[1] else '-' }}</td>
+                            <td>
+                                <a href="/admin/edit_company/{{ company[0] }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a href="/admin/delete_company/{{ company[0] }}" class="btn btn-sm btn-outline-danger">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">No companies added yet.</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
