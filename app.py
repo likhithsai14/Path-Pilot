@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, url_for, flash
+from flask import Flask, render_template, request, redirect, session, url_for, flash, send_from_directory
 import sqlite3
 import os
 import uuid
@@ -7,14 +8,25 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
+APP_BOOT_ID = uuid.uuid4().hex
 
 UPLOAD_FOLDER = os.path.join(app.root_path, "static", "uploads", "experience_pdfs")
+CONTACT_UPLOAD_FOLDER = os.path.join(app.root_path, "static", "uploads", "contact_files")
 ALLOWED_FILE_EXTENSIONS = {"pdf"}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(CONTACT_UPLOAD_FOLDER, exist_ok=True)
 
 
 def is_allowed_pdf(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_FILE_EXTENSIONS
+
+
+@app.before_request
+def reset_session_after_server_restart():
+    # Ensure each server restart begins with a fresh session state.
+    if session.get("_app_boot_id") != APP_BOOT_ID:
+        session.clear()
+        session["_app_boot_id"] = APP_BOOT_ID
 
 
 def get_verified_ids(cur):
@@ -22,7 +34,32 @@ def get_verified_ids(cur):
     return {row[0] for row in cur.fetchall()}
 
 
-def get_admin_notifications(cur, role, limit=10):
+def get_admin_notifications(cur, role, username=None, limit=10):
+    if username:
+        cur.execute(
+            """
+            SELECT COALESCE(last_seen_admin_notification_id, 0)
+            FROM user_notification_state
+            WHERE username=?
+            """,
+            (username,)
+        )
+        row = cur.fetchone()
+        last_seen_id = row[0] if row else 0
+
+        cur.execute(
+            """
+            SELECT id, message, target_role, created_by, created_at
+            FROM admin_notifications
+            WHERE target_role IN ('all', ?)
+            AND id > ?
+            ORDER BY id DESC
+            LIMIT ?
+            """,
+            (role, last_seen_id, limit)
+        )
+        return cur.fetchall()
+
     cur.execute(
         """
         SELECT id, message, target_role, created_by, created_at
@@ -421,6 +458,15 @@ CREATE TABLE IF NOT EXISTS companies(
         except:
             pass
 
+        for col_def in [
+            "file_path TEXT",
+            "original_name TEXT"
+        ]:
+            try:
+                cur.execute(f"ALTER TABLE contributor_admin_contacts ADD COLUMN {col_def}")
+            except:
+                pass
+
     # Add user ban flag if it doesn't exist
     try:
         cur.execute("ALTER TABLE users ADD COLUMN is_banned INTEGER DEFAULT 0")
@@ -535,7 +581,12 @@ def home():
         """)
         pending_users = cur.fetchall()
     else:
-        admin_notifications = get_admin_notifications(cur, session["role"], limit=12)
+        admin_notifications = get_admin_notifications(
+            cur,
+            session["role"],
+            username=session["user"],
+            limit=12
+        )
         notification_count = get_admin_unread_notification_count(cur, session["user"], session["role"])
 
     if session["role"] in ["student", "contributor", "admin"]:
@@ -743,7 +794,12 @@ def dashboard():
         """)
         pending_users = cur.fetchall()
     else:
-        admin_notifications = get_admin_notifications(cur, session["role"], limit=12)
+        admin_notifications = get_admin_notifications(
+            cur,
+            session["role"],
+            username=session["user"],
+            limit=12
+        )
         notification_count = get_admin_unread_notification_count(cur, session["user"], session["role"])
 
     if session["role"] in ["student", "contributor", "admin"]:
@@ -755,7 +811,7 @@ def dashboard():
     if session["role"] == "contributor":
         cur.execute(
             """
-            SELECT id, subject, message, created_at, admin_reply, replied_at
+            SELECT id, subject, message, created_at, admin_reply, replied_at, file_path, original_name
             FROM contributor_admin_contacts
             WHERE contributor_username=?
             ORDER BY id DESC
@@ -869,20 +925,45 @@ def contact_admin():
         flash("Keep subject under 120 chars and message under 1000 chars.", "error")
         return redirect("/dashboard#contact-admin")
 
+    # Optional PDF attachment
+    saved_file_path = None
+    original_file_name = None
+    attachment = request.files.get("attachment")
+    if attachment and attachment.filename:
+        original_file_name = secure_filename(attachment.filename)
+        if not is_allowed_pdf(original_file_name):
+            flash("Only PDF files are allowed as attachments.", "error")
+            return redirect("/dashboard#contact-admin")
+        unique_filename = f"{uuid.uuid4().hex}_{original_file_name}"
+        try:
+            attachment.save(os.path.join(CONTACT_UPLOAD_FOLDER, unique_filename))
+            saved_file_path = unique_filename
+        except Exception:
+            flash("Failed to upload attachment. Please try again.", "error")
+            return redirect("/dashboard#contact-admin")
+
     conn = sqlite3.connect("database.db")
     cur = conn.cursor()
     cur.execute(
         """
-        INSERT INTO contributor_admin_contacts(contributor_username, subject, message)
-        VALUES(?,?,?)
+        INSERT INTO contributor_admin_contacts(contributor_username, subject, message, file_path, original_name)
+        VALUES(?,?,?,?,?)
         """,
-        (session["user"], subject, message)
+        (session["user"], subject, message, saved_file_path, original_file_name)
     )
     conn.commit()
     conn.close()
 
     flash("Message sent to admin successfully.", "success")
     return redirect("/dashboard#contact-admin")
+
+
+@app.route("/contact-admin/file/<path:filename>")
+def serve_contact_file(filename):
+    if session.get("role") not in ["contributor", "admin"] and not is_admin_authenticated():
+        return redirect("/dashboard")
+    safe_name = secure_filename(os.path.basename(filename))
+    return send_from_directory(CONTACT_UPLOAD_FOLDER, safe_name, as_attachment=False)
 
 
 @app.route("/admin/home")
@@ -1505,7 +1586,7 @@ def admin_controls():
 
     cur.execute(
         """
-        SELECT id, contributor_username, subject, message, admin_reply, replied_at, created_at
+        SELECT id, contributor_username, subject, message, admin_reply, replied_at, created_at, file_path, original_name
         FROM contributor_admin_contacts
         ORDER BY id DESC
         LIMIT 30
@@ -1688,6 +1769,44 @@ def mark_notifications_read():
     conn.close()
 
     return {"status": "ok", "last_seen": latest_visible_id}
+
+
+@app.route("/notifications/clear", methods=["POST"])
+def clear_notifications():
+
+    if "role" not in session:
+        return {"status": "unauthorized"}, 401
+
+    if session["role"] == "admin":
+        return {"status": "skipped"}
+
+    conn = sqlite3.connect("database.db")
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        SELECT COALESCE(MAX(id), 0)
+        FROM admin_notifications
+        WHERE target_role IN ('all', ?)
+        """,
+        (session["role"],)
+    )
+    latest_visible_id = cur.fetchone()[0]
+
+    cur.execute(
+        """
+        INSERT INTO user_notification_state(username, last_seen_admin_notification_id)
+        VALUES(?, ?)
+        ON CONFLICT(username)
+        DO UPDATE SET last_seen_admin_notification_id=excluded.last_seen_admin_notification_id
+        """,
+        (session["user"], latest_visible_id)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return {"status": "ok", "cleared_until": latest_visible_id}
 
 
 @app.route("/admin/delete_experience/<int:exp_id>")

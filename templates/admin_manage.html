@@ -111,6 +111,83 @@ body{padding:16px;}
 .grid-cards{grid-template-columns:1fr;}
 .header{flex-direction:column;align-items:flex-start;}
 }
+
+/* ── Contributor Contact Cards ──────────────────────────── */
+.contact-cards-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+    gap:16px;
+    margin-top:18px;
+}
+.contact-card{
+    background:#f8fbff;
+    border:1px solid #d8e2f0;
+    border-radius:14px;
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    transition:box-shadow .15s;
+}
+.contact-card:hover{box-shadow:0 6px 18px rgba(15,23,42,0.09);}
+
+.contact-card-header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:8px;
+}
+.contact-avatar{
+    width:36px;height:36px;border-radius:50%;
+    background:linear-gradient(135deg,#0f766e,#115e59);
+    color:#fff;font-weight:800;font-size:15px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+}
+.contact-subject{
+    font-weight:700;font-size:14px;color:#0f172a;
+    padding-bottom:6px;border-bottom:1px solid #e5edf7;
+}
+.contact-body{
+    font-size:13px;color:#475569;line-height:1.6;
+    white-space:pre-line;
+    max-height:100px;overflow:auto;
+}
+.contact-attachment{
+    display:inline-flex;align-items:center;
+    font-size:12px;font-weight:600;color:#0f766e;
+    background:#ecfdf5;border:1px solid #a7f3d0;
+    border-radius:8px;padding:5px 10px;
+    text-decoration:none;width:fit-content;
+}
+.contact-attachment:hover{background:#d1fae5;}
+
+.contact-reply-preview{
+    background:#f0fdf9;border:1px solid #a7f3d0;
+    border-radius:10px;padding:10px 12px;
+}
+.contact-actions{
+    display:flex;gap:8px;flex-wrap:wrap;padding-top:4px;
+    border-top:1px solid #e5edf7;margin-top:auto;
+}
+.contact-btn{
+    display:inline-flex;align-items:center;
+    font-size:12px;font-weight:600;
+    padding:6px 13px;border-radius:8px;
+    border:none;cursor:pointer;transition:filter .15s;
+}
+.contact-btn:hover{filter:brightness(.93);}
+.reply-btn{background:linear-gradient(135deg,#0f766e,#115e59);color:#fff;}
+.edit-btn{background:#f1f5f9;color:#334155;border:1px solid #d8e2f0;}
+.delete-btn{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+
+.status-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;}
+.status-badge.replied{background:#dcfce7;color:#166534;}
+.status-badge.pending{background:#fef3c7;color:#92400e;}
+
+@media(max-width:600px){
+    .contact-cards-grid{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
@@ -120,7 +197,7 @@ body{padding:16px;}
             <h2>Admin Controls</h2>
             <p>Manage users, moderate interview experiences, and broadcast platform-wide notifications.</p>
         </div>
-        <a href="/admin/home" class="btn btn-secondary">Back to Dashboard</a>
+        <a href="/" class="btn btn-secondary">Back to Home</a>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -194,61 +271,159 @@ body{padding:16px;}
     </div>
 
     <div class="section">
-        <h3>Contributor Contact Messages</h3>
-        <div class="meta">Latest support or clarification requests sent by contributors.</div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Contributor</th>
-                        <th>Subject</th>
-                        <th>Message</th>
-                        <th>Admin Reply</th>
-                        <th>Sent At</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if contributor_contacts and contributor_contacts|length > 0 %}
-                        {% for msg in contributor_contacts %}
-                        <tr>
-                            <td>{{ msg[0] }}</td>
-                            <td>{{ msg[1] }}</td>
-                            <td>{{ msg[2] }}</td>
-                            <td style="white-space:pre-line;">{{ msg[3] }}</td>
-                            <td style="white-space:pre-line;">
-                                {% if msg[4] %}
-                                {{ msg[4] }}
-                                <div class="feed-meta" style="margin-top:6px;">Replied at {{ msg[5] }}</div>
-                                {% else %}
-                                <span class="text-muted">No reply yet</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ msg[6] }}</td>
-                            <td style="min-width:220px;max-width:240px;">
-                                <form method="POST" action="/admin/contact/edit/{{ msg[0] }}" class="mb-3">
-                                    <input type="text" name="subject" class="form-control form-control-sm mb-2" maxlength="120" value="{{ msg[2] }}" required>
-                                    <textarea name="message" class="form-control form-control-sm" rows="2" maxlength="1000" required>{{ msg[3] }}</textarea>
-                                    <button class="btn btn-sm btn-outline-primary mt-2" type="submit">Edit Message</button>
-                                </form>
-                                <form method="POST" action="/admin/contact/reply/{{ msg[0] }}" class="mb-2">
-                                    <textarea name="reply" class="form-control form-control-sm" rows="1" maxlength="1000" placeholder="Write reply to contributor...">{{ msg[4] if msg[4] else '' }}</textarea>
-                                    <button class="btn btn-sm btn-brand mt-2" type="submit">Save Reply</button>
-                                </form>
-                                <form method="POST" action="/admin/contact/delete/{{ msg[0] }}" onsubmit="return confirm('Delete this contributor message?');">
-                                    <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="7" class="text-center text-muted">No contributor messages yet.</td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div>
+                <h3>Contributor Contact Messages</h3>
+                <div class="meta">Support and clarification requests submitted by contributors.</div>
+            </div>
+            {% if contributor_contacts %}
+            <span class="badge text-bg-secondary" style="font-size:13px;padding:6px 12px;border-radius:999px;">{{ contributor_contacts|length }} message{{ 's' if contributor_contacts|length != 1 else '' }}</span>
+            {% endif %}
+        </div>
+
+        {% if contributor_contacts and contributor_contacts|length > 0 %}
+        <div class="contact-cards-grid">
+            {% for msg in contributor_contacts %}
+            <div class="contact-card">
+                <!-- Card Header -->
+                <div class="contact-card-header">
+                    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                        <div class="contact-avatar">{{ msg[1][0]|upper }}</div>
+                        <div>
+                            <div style="font-weight:700;font-size:13px;color:#0f172a;">{{ msg[1] }}</div>
+                            <div style="font-size:11px;color:#64748b;">{{ msg[6] }}</div>
+                        </div>
+                    </div>
+                    <div>
+                        {% if msg[4] %}
+                        <span class="status-badge replied">Replied</span>
+                        {% else %}
+                        <span class="status-badge pending">Pending</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Subject -->
+                <div class="contact-subject">{{ msg[2] }}</div>
+
+                <!-- Message Body -->
+                <div class="contact-body">{{ msg[3] }}</div>
+
+                <!-- Attachment -->
+                {% if msg[7] and msg[8] %}
+                <a href="/contact-admin/file/{{ msg[7] }}" target="_blank" class="contact-attachment">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" style="margin-right:5px;flex-shrink:0;">
+                        <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"/>
+                    </svg>
+                    {{ msg[8] }}
+                </a>
+                {% endif %}
+
+                <!-- Admin Reply Preview -->
+                {% if msg[4] %}
+                <div class="contact-reply-preview">
+                    <div style="font-size:11px;font-weight:700;color:#0f766e;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px;">Your Reply</div>
+                    <div style="font-size:12px;color:#334155;white-space:pre-line;">{{ msg[4] }}</div>
+                    <div style="font-size:11px;color:#94a3b8;margin-top:4px;">{{ msg[5] }}</div>
+                </div>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <div class="contact-actions">
+                    <button class="contact-btn reply-btn"
+                        data-id="{{ msg[0] }}"
+                        data-reply="{{ msg[4] if msg[4] else '' }}"
+                        onclick="openReplyModal(this)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" style="margin-right:4px;">
+                            <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.495 6.033a.237.237 0 0 0 .25.25h7.5a.25.25 0 0 0 0-.5h-7.5a.25.25 0 0 0-.25.25m0-2a.237.237 0 0 0 .25.25h7.5a.25.25 0 0 0 0-.5h-7.5a.25.25 0 0 0-.25.25m0-2a.237.237 0 0 0 .25.25h7.5a.25.25 0 0 0 0-.5h-7.5a.25.25 0 0 0-.25.25"/>
+                        </svg>
+                        {{ 'Edit Reply' if msg[4] else 'Reply' }}
+                    </button>
+                    <button class="contact-btn edit-btn"
+                        data-id="{{ msg[0] }}"
+                        data-subject="{{ msg[2] }}"
+                        data-message="{{ msg[3] }}"
+                        onclick="openEditModal(this)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" style="margin-right:4px;">
+                            <path d="M12.146.854a.5.5 0 0 1 .707 0l2.292 2.292a.5.5 0 0 1 0 .707l-9.646 9.646a.5.5 0 0 1-.25.131l-3 .5a.5.5 0 0 1-.572-.572l.5-3a.5.5 0 0 1 .131-.25zM3.707 13.5l-.353-2.122 9.293-9.293 2.122 2.122z"/>
+                        </svg>
+                        Edit
+                    </button>
+                    <form method="POST" action="/admin/contact/delete/{{ msg[0] }}" style="margin:0;"
+                          onsubmit="return confirm('Delete this message from {{ msg[1] }}?');">
+                        <button type="submit" class="contact-btn delete-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" style="margin-right:4px;">
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                            </svg>
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:40px 20px;color:#94a3b8;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#cbd5e1" viewBox="0 0 16 16" style="display:block;margin:0 auto 12px;">
+                <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
+            </svg>
+            <div style="font-size:14px;font-weight:600;">No contributor messages yet.</div>
+            <div style="font-size:12px;margin-top:4px;">Messages from contributors will appear here.</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Reply Modal -->
+    <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius:16px;border:1px solid #d8e2f0;">
+                <div class="modal-header" style="border-bottom:1px solid #e5edf7;padding:18px 20px;">
+                    <h5 class="modal-title" id="replyModalLabel" style="font-weight:800;font-size:17px;">Reply to Contributor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="replyForm" method="POST" action="">
+                    <div class="modal-body" style="padding:20px;">
+                        <label class="form-label">Your Reply</label>
+                        <textarea id="replyTextarea" name="reply" class="form-control" rows="5" maxlength="1000"
+                            placeholder="Write your reply to the contributor..."></textarea>
+                        <div style="font-size:11px;color:#94a3b8;margin-top:6px;text-align:right;" id="replyCharCount">0 / 1000</div>
+                    </div>
+                    <div class="modal-footer" style="border-top:1px solid #e5edf7;padding:14px 20px;">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-brand btn-sm">Send Reply</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius:16px;border:1px solid #d8e2f0;">
+                <div class="modal-header" style="border-bottom:1px solid #e5edf7;padding:18px 20px;">
+                    <h5 class="modal-title" id="editModalLabel" style="font-weight:800;font-size:17px;">Edit Message</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editForm" method="POST" action="">
+                    <div class="modal-body" style="padding:20px;">
+                        <div class="mb-3">
+                            <label class="form-label">Subject</label>
+                            <input type="text" id="editSubject" name="subject" class="form-control" maxlength="120" required>
+                        </div>
+                        <div class="mb-1">
+                            <label class="form-label">Message</label>
+                            <textarea id="editMessage" name="message" class="form-control" rows="5" maxlength="1000" required></textarea>
+                            <div style="font-size:11px;color:#94a3b8;margin-top:6px;text-align:right;" id="editCharCount">0 / 1000</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top:1px solid #e5edf7;padding:14px 20px;">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-brand btn-sm">Save Changes</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -442,5 +617,36 @@ body{padding:16px;}
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function openReplyModal(btn) {
+    const id = btn.dataset.id;
+    const reply = btn.dataset.reply;
+    document.getElementById('replyForm').action = '/admin/contact/reply/' + id;
+    const ta = document.getElementById('replyTextarea');
+    ta.value = reply;
+    updateCount(ta, document.getElementById('replyCharCount'));
+    new bootstrap.Modal(document.getElementById('replyModal')).show();
+}
+
+function openEditModal(btn) {
+    const id = btn.dataset.id;
+    document.getElementById('editForm').action = '/admin/contact/edit/' + id;
+    const subject = document.getElementById('editSubject');
+    const message = document.getElementById('editMessage');
+    subject.value = btn.dataset.subject;
+    message.value = btn.dataset.message;
+    updateCount(message, document.getElementById('editCharCount'));
+    new bootstrap.Modal(document.getElementById('editModal')).show();
+}
+
+function updateCount(el, counter) {
+    counter.textContent = el.value.length + ' / 1000';
+    el.addEventListener('input', function() {
+        counter.textContent = this.value.length + ' / 1000';
+    });
+}
+</script>
 </body>
 </html>

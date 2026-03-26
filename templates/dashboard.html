@@ -73,6 +73,26 @@ color:#334155;
 
 .notification-item:last-child{border-bottom:none;}
 
+.notification-toolbar{
+display:flex;
+justify-content:flex-end;
+padding:8px 10px;
+border-bottom:1px solid #eef2f7;
+}
+
+.clear-notifications-btn{
+border:1px solid #d1d5db;
+background:#f8fafc;
+color:#334155;
+font-size:12px;
+font-weight:600;
+padding:5px 10px;
+border-radius:8px;
+cursor:pointer;
+}
+
+.clear-notifications-btn:hover{background:#eef2f7;}
+
 .notification-meta{
 font-size:11px;
 color:#64748b;
@@ -662,6 +682,9 @@ body{display:block;}
 	{% endif %}
 {% else %}
 	{% if admin_notifications and admin_notifications|length > 0 %}
+		<div class="notification-toolbar">
+			<button type="button" class="clear-notifications-btn" onclick="clearNotifications(event)">Clear</button>
+		</div>
 		{% for notice in admin_notifications %}
 		<div class="notification-item">
 			<strong>Admin Message</strong>
@@ -848,7 +871,7 @@ body{display:block;}
 <div class="contact-panel">
 <h3>Send Message</h3>
 <p class="contact-help">Write clear details so admin can help faster.</p>
-<form method="POST" action="/contact-admin">
+<form method="POST" action="/contact-admin" enctype="multipart/form-data">
 <div class="prep-field">
 <label>Subject</label>
 <input type="text" name="subject" maxlength="120" placeholder="Example: Need clarification on contributor privileges" required>
@@ -856,6 +879,10 @@ body{display:block;}
 <div class="prep-field" style="margin-top:12px;">
 <label>Message</label>
 <textarea name="message" maxlength="1000" placeholder="Explain your issue, include what happened and what help you need." required></textarea>
+</div>
+<div class="prep-field" style="margin-top:12px;">
+<label>Attach File (PDF, optional)</label>
+<input type="file" name="attachment" accept=".pdf,application/pdf">
 </div>
 <button class="btn-doubt" type="submit">Send to Admin</button>
 </form>
@@ -870,6 +897,11 @@ body{display:block;}
 <div class="contact-item">
 <div class="contact-subject">{{ msg[1] }}</div>
 <div class="contact-text">{{ msg[2] }}</div>
+{% if msg[6] and msg[7] %}
+<div class="contact-time" style="margin-top:6px;">
+Attachment: <a href="/contact-admin/file/{{ msg[6] }}">{{ msg[7] }}</a>
+</div>
+{% endif %}
 <div class="contact-time">Sent on {{ msg[3] }}</div>
 {% if msg[4] %}
 <div class="contact-text" style="margin-top:10px;background:#ecfeff;border:1px solid #c7f9f4;border-radius:8px;padding:8px 10px;">
@@ -1092,6 +1124,22 @@ if(count){count.style.display='none';}
 })
 .catch(function(){});
 }
+}
+
+function clearNotifications(event){
+if(event){event.stopPropagation();}
+
+var count=document.getElementById('notificationCount');
+if(count){count.style.display='none';}
+
+var dropdown=document.getElementById('notificationDropdown');
+if(dropdown){
+dropdown.innerHTML = '<div class="notification-item">No messages</div>';
+}
+
+fetch('/notifications/clear', {method:'POST'})
+.then(function(){})
+.catch(function(){});
 }
 
 function toggleInlineEdit(id){
