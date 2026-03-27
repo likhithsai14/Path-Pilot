@@ -1265,8 +1265,10 @@ def profile_settings():
 @app.route("/search", methods=["GET", "POST"])
 def search():
 
-    if "role" not in session:
+    if "role" not in session and not is_admin_authenticated():
         return redirect("/")
+
+    viewer_name = get_active_viewer_username()
 
     results = []
     verified_ids = set()
@@ -1292,7 +1294,7 @@ def search():
         "search.html",
         results=results,
         verified_ids=verified_ids,
-        user=session["user"]
+        user=viewer_name
     )
 
 
@@ -1301,8 +1303,11 @@ def search():
 @app.route("/companies")
 def companies():
 
-    if "role" not in session:
+    if "role" not in session and not is_admin_authenticated():
         return redirect("/")
+
+    viewer_name = get_active_viewer_username()
+    viewer_role = session.get("role", "admin" if is_admin_authenticated() else "student")
 
     conn = sqlite3.connect("database.db")
     cur = conn.cursor()
@@ -1326,8 +1331,8 @@ def companies():
         companies=companies,
         experiences=experiences,
         verified_ids=verified_ids,
-        role=session["role"],
-        user=session["user"]
+        role=viewer_role,
+        user=viewer_name
     )
 
 
@@ -1435,8 +1440,10 @@ def experience_detail(exp_id):
 @app.route("/company/<name>")
 def company_page(name):
 
-    if "role" not in session:
+    if "role" not in session and not is_admin_authenticated():
         return redirect("/")
+
+    viewer_name = get_active_viewer_username()
 
     conn = sqlite3.connect("database.db")
     cur = conn.cursor()
@@ -1461,7 +1468,7 @@ def company_page(name):
         company=name,
         experiences=experiences,
         verified_ids=verified_ids,
-        user=session["user"]
+        user=viewer_name
     )
 
 
